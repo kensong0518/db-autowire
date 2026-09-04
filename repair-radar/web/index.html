@@ -1,10 +1,9 @@
-<title>維修需求雷達</title>
+<title>維修接單雷達</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap">
 <style>
 :root{
-  --ink:#0e1416;
   --ground:#f2f4f3;
   --surface:#ffffff;
   --surface-2:#e8ecea;
@@ -14,7 +13,6 @@
   --text-2:#4d5c60;
   --text-3:#77878b;
   --accent:#e2571c;
-  --accent-soft:#fbe6da;
   --hot:#e2571c;
   --warm:#c58a12;
   --cool:#4f7f93;
@@ -22,86 +20,72 @@
   --bad:#c8443f;
   --shadow:0 1px 2px rgba(14,20,22,.07),0 8px 24px -16px rgba(14,20,22,.35);
 }
-:root:not([data-theme="light"]){
-  color-scheme:dark light;
-}
+:root:not([data-theme="light"]){ color-scheme:dark light }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --ground:#0b1113;
-    --surface:#141c1f;
-    --surface-2:#1c2629;
-    --line:#2b3639;
-    --line-soft:#212b2e;
-    --text:#e6ecea;
-    --text-2:#9fb0b2;
-    --text-3:#6f8083;
-    --accent:#ff7a2f;
-    --accent-soft:#33200f;
-    --hot:#ff7a2f;
-    --warm:#e0a94a;
-    --cool:#77a9be;
-    --good:#4cc188;
-    --bad:#e5615c;
+    --ground:#0b1113; --surface:#141c1f; --surface-2:#1c2629;
+    --line:#2b3639; --line-soft:#212b2e;
+    --text:#e6ecea; --text-2:#9fb0b2; --text-3:#6f8083;
+    --accent:#ff7a2f; --hot:#ff7a2f; --warm:#e0a94a; --cool:#77a9be;
+    --good:#4cc188; --bad:#e5615c;
     --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 32px -20px #000;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --ground:#0b1113;
-  --surface:#141c1f;
-  --surface-2:#1c2629;
-  --line:#2b3639;
-  --line-soft:#212b2e;
-  --text:#e6ecea;
-  --text-2:#9fb0b2;
-  --text-3:#6f8083;
-  --accent:#ff7a2f;
-  --accent-soft:#33200f;
-  --hot:#ff7a2f;
-  --warm:#e0a94a;
-  --cool:#77a9be;
-  --good:#4cc188;
-  --bad:#e5615c;
+  --ground:#0b1113; --surface:#141c1f; --surface-2:#1c2629;
+  --line:#2b3639; --line-soft:#212b2e;
+  --text:#e6ecea; --text-2:#9fb0b2; --text-3:#6f8083;
+  --accent:#ff7a2f; --hot:#ff7a2f; --warm:#e0a94a; --cool:#77a9be;
+  --good:#4cc188; --bad:#e5615c;
   --shadow:0 1px 0 rgba(0,0,0,.4),0 12px 32px -20px #000;
 }
 
 *{box-sizing:border-box}
 body{
-  margin:0;
-  background:var(--ground);
-  color:var(--text);
+  margin:0;background:var(--ground);color:var(--text);
   font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
-  font-size:15px;
-  line-height:1.6;
-  -webkit-font-smoothing:antialiased;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
 }
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
-.wrap{max-width:1180px;margin:0 auto;padding:0 14px 96px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 14px 110px}
 
 /* ---------- header ---------- */
 header.top{
   position:sticky;top:0;z-index:40;
-  background:color-mix(in srgb,var(--ground) 88%,transparent);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line-soft);
+  background:color-mix(in srgb,var(--ground) 90%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line-soft);
 }
-.top-inner{max-width:1180px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;gap:12px}
-.brand{display:flex;align-items:baseline;gap:9px;min-width:0}
-.brand h1{
-  margin:0;font-family:Archivo,"Noto Sans TC",sans-serif;font-weight:800;
-  font-size:19px;letter-spacing:-.015em;white-space:nowrap;
+.top-inner{max-width:1180px;margin:0 auto;padding:9px 14px;display:flex;align-items:center;gap:10px}
+.brand h1{margin:0;font-family:Archivo,"Noto Sans TC",sans-serif;font-weight:800;font-size:18px;letter-spacing:-.015em;white-space:nowrap}
+.sync{
+  display:flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;
+  font-size:11px;color:var(--text-3);white-space:nowrap;
 }
-.brand .sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3);white-space:nowrap}
-.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.sync .led{width:6px;height:6px;border-radius:50%;background:var(--good)}
+.sync.beat .led{animation:beat .9s ease}
+@keyframes beat{0%{transform:scale(1);opacity:1}50%{transform:scale(2.1);opacity:.35}100%{transform:scale(1);opacity:1}}
+.top-actions{margin-left:auto;display:flex;gap:4px;align-items:center}
 
-/* ---------- stat strip ---------- */
+.tabs{max-width:1180px;margin:0 auto;padding:0 14px;display:flex;gap:2px}
+.tab{
+  border:0;background:transparent;color:var(--text-3);padding:8px 14px 9px;
+  font-size:14px;font-weight:500;border-bottom:2px solid transparent;display:flex;gap:7px;align-items:center;
+}
+.tab[aria-selected="true"]{color:var(--text);border-bottom-color:var(--accent);font-weight:700}
+.tab .badge{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;background:var(--surface-2);
+  color:var(--text-2);padding:1px 6px;border-radius:999px;
+}
+.tab[aria-selected="true"] .badge{background:var(--accent);color:#fff}
+
+/* ---------- stats ---------- */
 .stats{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
-  background:var(--line-soft);border:1px solid var(--line-soft);
-  border-radius:10px;overflow:hidden;margin:14px 0 12px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-soft);
+  border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;margin:14px 0 12px;
 }
 .stat{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .stat .k{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -109,29 +93,22 @@ header.top{
 .stat .n{font-size:11px;color:var(--text-3)}
 .stat.alert .v{color:var(--bad)}
 .stat.warn .v{color:var(--warm)}
-
+.stat.go .v{color:var(--good)}
 .quota-bar{height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden;margin-top:5px}
 .quota-bar i{display:block;height:100%;background:var(--good);transition:width .4s ease}
 .quota-bar.warn i{background:var(--warm)}
 .quota-bar.alert i{background:var(--bad)}
 
-/* ---------- notice ---------- */
 .notice{
-  display:flex;gap:10px;align-items:flex-start;
-  border:1px solid var(--line);border-left:3px solid var(--warm);
-  background:var(--surface);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--text-2);
+  display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);
+  border-left:3px solid var(--warm);background:var(--surface);border-radius:8px;
+  padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--text-2);
 }
 .notice strong{color:var(--text)}
 .notice.hot{border-left-color:var(--bad)}
 
 /* ---------- filters ---------- */
-.filters{
-  position:sticky;top:52px;z-index:30;
-  background:color-mix(in srgb,var(--ground) 92%,transparent);
-  backdrop-filter:blur(10px);
-  padding:8px 0 10px;margin-bottom:2px;
-  border-bottom:1px solid var(--line-soft);
-}
+.filters{padding:8px 0 10px;border-bottom:1px solid var(--line-soft);margin-bottom:2px}
 .chiprow{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
 .chiprow::-webkit-scrollbar{display:none}
 .chip{
@@ -142,138 +119,126 @@ header.top{
 .chip:hover{border-color:var(--text-3)}
 .chip[aria-pressed="true"]{background:var(--text);color:var(--ground);border-color:var(--text)}
 .chip .cnt{font-family:"IBM Plex Mono",monospace;font-size:11px;opacity:.65}
-.searchrow{display:flex;gap:6px;margin-top:8px}
-.searchrow input[type="search"]{
-  flex:1;min-width:0;background:var(--surface);border:1px solid var(--line);
-  border-radius:8px;padding:7px 11px;font-size:14px;
-}
-.searchrow select{
-  background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px;
-}
+.searchrow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.searchrow input[type="search"]{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:14px}
+.searchrow select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px}
 
 /* ---------- buttons ---------- */
-.btn{
-  border:1px solid var(--line);background:var(--surface);color:var(--text);
-  border-radius:8px;padding:7px 12px;font-size:13px;font-weight:500;transition:.15s;
-  display:inline-flex;align-items:center;gap:6px;
-}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:500;transition:.15s;display:inline-flex;align-items:center;gap:6px}
 .btn:hover{border-color:var(--text-3)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn.primary:hover{filter:brightness(1.08)}
+.btn.go{background:var(--good);border-color:var(--good);color:#04140b}
 .btn.ghost{background:transparent;border-color:transparent;color:var(--text-2);padding:6px 8px}
 .btn.ghost:hover{background:var(--surface-2)}
 .btn.sm{padding:4px 9px;font-size:12px;border-radius:7px}
 
-/* ---------- list ---------- */
-.section-head{
-  display:flex;align-items:baseline;gap:9px;margin:18px 0 8px;
-}
-.section-head h2{
-  margin:0;font-family:Archivo,"Noto Sans TC",sans-serif;font-size:13px;font-weight:700;
-  letter-spacing:.13em;text-transform:uppercase;color:var(--text-2);
-}
+.section-head{display:flex;align-items:baseline;gap:9px;margin:18px 0 8px}
+.section-head h2{margin:0;font-family:Archivo,"Noto Sans TC",sans-serif;font-size:13px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--text-2)}
 .section-head .rule{flex:1;height:1px;background:var(--line-soft)}
 .section-head .n{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--text-3)}
-
 .list{display:flex;flex-direction:column;gap:8px}
+.empty{border:1px dashed var(--line);border-radius:10px;padding:26px 18px;text-align:center;color:var(--text-3);font-size:13.5px}
 
-.post{
-  display:grid;grid-template-columns:44px 1fr;
-  background:var(--surface);border:1px solid var(--line-soft);
-  border-radius:10px;overflow:hidden;transition:.15s;
+/* ---------- 工單卡 ---------- */
+.order{
+  display:grid;grid-template-columns:6px 1fr;background:var(--surface);
+  border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;
 }
+.order .stripe{background:var(--line)}
+.order.s-intake .stripe{background:var(--cool)}
+.order.s-quoted .stripe{background:var(--warm)}
+.order.s-repair .stripe{background:var(--accent)}
+.order.s-ready  .stripe{background:var(--good)}
+.order.s-done .stripe,.order.s-lost .stripe{background:var(--line)}
+.order.s-done,.order.s-lost{opacity:.62}
+.order.late{border-color:color-mix(in srgb,var(--bad) 55%,var(--line-soft))}
+
+.o-body{padding:11px 12px;min-width:0;display:flex;flex-direction:column;gap:7px}
+.o-top{display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap}
+.o-no{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--text-3);letter-spacing:.03em}
+.o-name{font-size:16px;font-weight:700;line-height:1.3}
+.o-name a{color:inherit;text-decoration:none}
+.o-name a:hover{color:var(--accent)}
+.o-pill{
+  margin-left:auto;font-size:11.5px;font-weight:500;padding:3px 9px;border-radius:999px;
+  border:1px solid var(--line);color:var(--text-2);background:var(--surface-2);white-space:nowrap;
+}
+.s-intake .o-pill{color:var(--cool);border-color:color-mix(in srgb,var(--cool) 40%,transparent)}
+.s-quoted .o-pill{color:var(--warm);border-color:color-mix(in srgb,var(--warm) 40%,transparent)}
+.s-repair .o-pill{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
+.s-ready  .o-pill{background:var(--good);color:#04140b;border-color:var(--good);font-weight:700}
+
+.o-device{font-size:14px;color:var(--text);font-weight:500}
+.o-symptom{font-size:13.5px;color:var(--text-2);margin:0;white-space:pre-wrap}
+.o-facts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--text-3)}
+.o-facts b{color:var(--text-2);font-weight:500;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.o-facts .late-txt{color:var(--bad);font-weight:500}
+.o-actions{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:1px}
+.tag{font-size:11px;padding:2px 7px;border-radius:5px;background:var(--surface-2);color:var(--text-2);border:1px solid var(--line-soft)}
+.tag.src{color:var(--cool);border-color:color-mix(in srgb,var(--cool) 30%,transparent)}
+.o-note{
+  border:1px dashed var(--line);border-radius:8px;background:var(--surface-2);
+  padding:10px 11px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;
+}
+.o-note .na{display:flex;gap:6px;margin-top:8px}
+
+/* ---------- 線索卡 ---------- */
+.post{display:grid;grid-template-columns:44px 1fr;background:var(--surface);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;transition:.15s}
 .post:hover{border-color:var(--line)}
 .post.tier-hot{border-color:color-mix(in srgb,var(--hot) 45%,var(--line-soft))}
 .post.done{opacity:.62}
-
-.spine{
-  display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 0;
-  background:var(--surface-2);border-right:1px solid var(--line-soft);
-}
-.score{
-  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
-  font-size:17px;font-weight:600;line-height:1;
-}
+.spine{display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 0;background:var(--surface-2);border-right:1px solid var(--line-soft)}
+.score{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:17px;font-weight:600;line-height:1}
 .tier-hot .score{color:var(--hot)}
 .tier-warm .score{color:var(--warm)}
 .tier-cool .score{color:var(--cool)}
 .tier-cold .score{color:var(--text-3)}
-.spine .lbl{font-size:9px;letter-spacing:.08em;color:var(--text-3);writing-mode:horizontal-tb}
+.spine .lbl{font-size:9px;letter-spacing:.08em;color:var(--text-3)}
 .spine .dot{width:5px;height:5px;border-radius:50%;background:var(--hot);margin-top:2px}
-
-.body{padding:11px 12px 11px 13px;min-width:0}
+.pbody{padding:11px 12px;min-width:0}
 .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:11.5px;color:var(--text-3);margin-bottom:5px}
 .meta .src{font-family:"IBM Plex Mono",monospace;color:var(--text-2);font-weight:500}
 .meta .sep{opacity:.4}
-.post h3{
-  margin:0 0 5px;font-size:15.5px;font-weight:700;line-height:1.4;text-wrap:balance;
-}
-.post h3 a{color:inherit;text-decoration:none;background-image:linear-gradient(var(--line),var(--line));background-size:100% 1px;background-position:0 100%;background-repeat:no-repeat}
+.post h3{margin:0 0 5px;font-size:15.5px;font-weight:700;line-height:1.4;text-wrap:balance}
+.post h3 a{color:inherit;text-decoration:none}
 .post h3 a:hover{color:var(--accent)}
 .excerpt{font-size:13.5px;color:var(--text-2);margin:0 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .post.open .excerpt{-webkit-line-clamp:unset;display:block;white-space:pre-wrap}
-
 .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-.tag{
-  font-size:11px;padding:2px 7px;border-radius:5px;
-  background:var(--surface-2);color:var(--text-2);border:1px solid var(--line-soft);
-}
 .tag.device{color:var(--cool);border-color:color-mix(in srgb,var(--cool) 30%,transparent)}
 .tag.issue{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
 .tag.region{color:var(--good);border-color:color-mix(in srgb,var(--good) 30%,transparent)}
-
 .rowactions{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
 .statusgroup{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.statusgroup button{
-  border:0;background:var(--surface);color:var(--text-3);padding:4px 9px;font-size:11.5px;
-  border-right:1px solid var(--line-soft);
-}
+.statusgroup button{border:0;background:var(--surface);color:var(--text-3);padding:4px 9px;font-size:11.5px;border-right:1px solid var(--line-soft)}
 .statusgroup button:last-child{border-right:0}
 .statusgroup button[aria-pressed="true"]{background:var(--text);color:var(--ground);font-weight:500}
-.statusgroup button[data-s="deal"][aria-pressed="true"]{background:var(--good);color:#04140b}
-.statusgroup button[data-s="skip"][aria-pressed="true"]{background:var(--surface-2);color:var(--text-2)}
-
-.pitch{
-  margin-top:9px;border:1px dashed var(--line);border-radius:8px;background:var(--surface-2);
-  padding:10px 11px;font-size:13.5px;line-height:1.75;white-space:pre-wrap;
-}
-.pitch .pitch-actions{display:flex;gap:6px;margin-top:8px;border:0;padding:0}
+.pitch{margin-top:9px;border:1px dashed var(--line);border-radius:8px;background:var(--surface-2);padding:10px 11px;font-size:13.5px;line-height:1.75;white-space:pre-wrap}
+.pitch .pitch-actions{display:flex;gap:6px;margin-top:8px}
 .breakdown{margin-top:8px;font-size:11.5px;color:var(--text-3);font-family:"IBM Plex Mono",monospace;line-height:1.8}
 .breakdown b{color:var(--text-2);font-weight:500}
 .breakdown .plus{color:var(--good)}
 .breakdown .minus{color:var(--bad)}
 
-.empty{
-  border:1px dashed var(--line);border-radius:10px;padding:26px 18px;text-align:center;color:var(--text-3);font-size:13.5px;
-}
-
-/* ---------- sheet / modal ---------- */
-.sheet-bg{
-  position:fixed;inset:0;background:rgba(6,10,11,.55);z-index:60;
-  display:flex;align-items:flex-end;justify-content:center;padding:0;
-}
-.sheet{
-  background:var(--surface);border:1px solid var(--line);border-bottom:0;
-  border-radius:14px 14px 0 0;width:100%;max-width:640px;max-height:88vh;overflow:auto;
-  padding:16px 15px 22px;box-shadow:var(--shadow);
-}
+/* ---------- sheet ---------- */
+.sheet-bg{position:fixed;inset:0;background:rgba(6,10,11,.55);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;width:100%;max-width:640px;max-height:90vh;overflow:auto;padding:16px 15px 22px;box-shadow:var(--shadow)}
 .sheet h2{margin:0 0 3px;font-family:Archivo,"Noto Sans TC",sans-serif;font-size:17px;font-weight:700}
 .sheet p.hint{margin:0 0 14px;font-size:12.5px;color:var(--text-3)}
 .field{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
 .field label{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3)}
-.field input,.field textarea,.field select{
-  background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px;width:100%;
-}
-.field textarea{min-height:96px;resize:vertical;line-height:1.6}
-.field .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field input,.field textarea,.field select{background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:15px;width:100%}
+.field textarea{min-height:84px;resize:vertical;line-height:1.6}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .sheet-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;position:sticky;bottom:-22px;background:var(--surface);padding:10px 0 0}
-.livescore{
-  display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;
-  padding:9px 11px;background:var(--surface-2);margin-bottom:12px;
-}
+.quickpick{display:flex;flex-wrap:wrap;gap:5px;margin-top:-3px}
+.quickpick button{border:1px solid var(--line);background:var(--surface);color:var(--text-2);border-radius:999px;padding:4px 10px;font-size:12.5px}
+.quickpick button:hover{border-color:var(--accent);color:var(--accent)}
+.livescore{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--surface-2);margin-bottom:12px}
 .livescore .big{font-family:"IBM Plex Mono",monospace;font-size:26px;font-weight:600;line-height:1}
 .livescore .txt{font-size:12.5px;color:var(--text-2);line-height:1.5}
-
 .kw-group{border:1px solid var(--line-soft);border-radius:9px;margin-bottom:8px;overflow:hidden}
 .kw-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface-2);font-size:12.5px}
 .kw-head .w{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:12px}
@@ -281,95 +246,67 @@ header.top{
 .kw-head .w.minus{color:var(--bad)}
 .kw-group textarea{border:0;border-top:1px solid var(--line-soft);border-radius:0;background:var(--surface);min-height:52px;font-size:13px;font-family:"IBM Plex Mono",monospace}
 
-.toast{
-  position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:80;
-  background:var(--text);color:var(--ground);padding:9px 16px;border-radius:999px;font-size:13px;
-  box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
-}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:80;background:var(--text);color:var(--ground);padding:9px 16px;border-radius:999px;font-size:13px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
-
-.fab{
-  position:fixed;right:16px;bottom:18px;z-index:50;
-  background:var(--accent);color:#fff;border:0;border-radius:999px;
-  padding:13px 19px;font-size:14px;font-weight:700;box-shadow:0 8px 24px -8px rgba(0,0,0,.5);
-  display:inline-flex;align-items:center;gap:7px;
-}
+.fab{position:fixed;right:16px;bottom:18px;z-index:50;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:14px 20px;font-size:15px;font-weight:700;box-shadow:0 8px 24px -8px rgba(0,0,0,.5);display:inline-flex;align-items:center;gap:7px}
 .footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--text-3);line-height:1.8}
 .footer code{font-family:"IBM Plex Mono",monospace;background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:11.5px}
 
 @media (max-width:560px){
   .stats{grid-template-columns:repeat(2,1fr)}
-  .brand .sub{display:none}
-  .wrap{padding-bottom:110px}
+  .row3{grid-template-columns:1fr 1fr}
+  .wrap{padding-bottom:120px}
 }
-@media (prefers-reduced-motion: reduce){
-  *{transition:none!important;animation:none!important}
-}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
 
 <header class="top">
   <div class="top-inner">
-    <div class="brand">
-      <h1>維修需求雷達</h1>
-      <span class="sub">Repair Radar · 中和</span>
-    </div>
+    <div class="brand"><h1>維修接單台</h1></div>
+    <span class="sync" id="sync"><span class="led"></span><span id="syncTxt">—</span></span>
     <div class="top-actions">
-      <button class="btn ghost sm" id="btnKw" title="關鍵字與評分設定">關鍵字</button>
-      <button class="btn ghost sm" id="btnImport" title="匯入爬蟲 JSON">匯入</button>
+      <button class="btn ghost sm" id="btnKw">關鍵字</button>
+      <button class="btn ghost sm" id="btnImport">匯入</button>
       <button class="btn ghost sm" id="btnTheme" title="切換深淺色">◐</button>
     </div>
   </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-view="orders" aria-selected="true">接單<span class="badge" id="tabOrders">0</span></button>
+    <button class="tab" role="tab" data-view="radar" aria-selected="false">需求雷達<span class="badge" id="tabRadar">0</span></button>
+  </nav>
 </header>
 
 <main class="wrap">
-  <div id="quotaNotice"></div>
-
+  <div id="notices"></div>
   <div class="stats" id="stats"></div>
-
-  <div class="filters">
-    <div class="chiprow" id="chipsStatus"></div>
-    <div class="searchrow">
-      <input type="search" id="q" placeholder="搜尋標題、內文、作者…" autocomplete="off">
-      <select id="fSource"><option value="">全部來源</option></select>
-      <select id="fScore">
-        <option value="0">全部分數</option>
-        <option value="70">70 分以上</option>
-        <option value="50">50 分以上</option>
-        <option value="85">85 分以上</option>
-      </select>
-      <select id="fTime">
-        <option value="0">不限時間</option>
-        <option value="1">1 小時內</option>
-        <option value="6">6 小時內</option>
-        <option value="24">24 小時內</option>
-      </select>
-    </div>
-    <div class="chiprow" id="chipsDevice" style="margin-top:8px"></div>
-  </div>
-
+  <div class="filters" id="filters"></div>
   <div id="board"></div>
-
-  <div class="footer">
-    <div>資料來源由爬蟲層（GitHub Actions）產出後匯入；此頁面不直接連線 PTT／Dcard——瀏覽器的跨網域限制擋住直連，自動抓取必須跑在伺服器端。</div>
-    <div>評分規則與關鍵字可在右上「關鍵字」中調整，變更後所有貼文即時重算。匯入格式：<code>[{title, body, source, url, author, posted_at}]</code></div>
-  </div>
+  <div class="footer" id="footer"></div>
 </main>
 
-<button class="fab" id="fabAdd">＋ 貼上需求</button>
+<button class="fab" id="fab">＋ 接單</button>
 <div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
-   維修需求雷達 — 看板 / 評分 / 話術
+   維修接單台 — 工單流程 + 需求雷達
    ============================================================ */
 
-const STATUS = {
-  new:     {label:'未處理', order:0},
-  contact: {label:'已聯絡', order:1},
-  deal:    {label:'已成交', order:2},
-  skip:    {label:'不適合', order:3},
+/* ---------- 工單狀態機 ---------- */
+const FLOW = ['intake','quoted','repair','ready','done'];
+const OSTATUS = {
+  intake:{label:'待檢測', next:'quoted', nextLabel:'報價完成'},
+  quoted:{label:'報價中', next:'repair', nextLabel:'客戶同意，開修'},
+  repair:{label:'維修中', next:'ready',  nextLabel:'修好了'},
+  ready: {label:'待取件', next:'done',   nextLabel:'客戶取件'},
+  done:  {label:'已完成', next:null,     nextLabel:''},
+  lost:  {label:'未成交', next:null,     nextLabel:''},
 };
 
+const COMMON_DEVICES = ['iPhone 15','iPhone 14','iPhone 13','iPhone 12','iPad','MacBook','Samsung','Pixel','小米','Switch','筆電'];
+const COMMON_SYMPTOMS = ['螢幕破裂','電池老化','進水','充電孔接觸不良','開不了機','鏡頭破裂','觸控失靈','喇叭無聲'];
+
+/* ---------- 雷達關鍵字 ---------- */
 const DEFAULT_KEYWORDS = {
   intent: {label:'求助意圖', weight:30, words:['求推薦','有推薦嗎','推薦嗎','求救','求助','哪裡修','哪邊修','該修還是換','有人知道','跪求','請問有','怎麼辦']},
   fault:  {label:'故障描述', weight:25, words:['螢幕破','螢幕裂','螢幕摔','摔到','摔破','進水','泡水','開不了機','無法開機','充不了電','不能充電','電池膨脹','耗電快','鏡頭裂','面板','觸控失靈','失靈','主機板','黑屏','沒畫面','尾插','充電孔']},
@@ -381,21 +318,19 @@ const DEFAULT_KEYWORDS = {
   trade:  {label:'買賣文',   weight:-30, words:['二手','出售','徵求購買','收購','換現金','讓售','便宜賣']},
   ad:     {label:'業配廣告', weight:-25, words:['業配','廣告','開箱','評測','實測心得','合作文']},
 };
-
 const RULE_FRESH = {label:'60 分鐘內新文', weight:10};
 const RULE_SHOP  = {label:'疑似店家推廣（同作者多篇）', weight:-25};
 const RULE_SHORT = {label:'內文少於 20 字', weight:-15};
 
 const ISSUE_MAP = [
-  {key:'screen',  label:'螢幕',   words:['螢幕破','螢幕裂','螢幕摔','面板','破圖','沒畫面','黑屏','觸控失靈','裂開']},
-  {key:'water',   label:'進水',   words:['進水','泡水','浸水','掉水']},
-  {key:'battery', label:'電池',   words:['電池膨脹','耗電快','電池','續航','膨脹','很快沒電']},
+  {key:'screen',  label:'螢幕',    words:['螢幕破','螢幕裂','螢幕摔','面板','破圖','沒畫面','黑屏','觸控失靈','裂開']},
+  {key:'water',   label:'進水',    words:['進水','泡水','浸水','掉水']},
+  {key:'battery', label:'電池',    words:['電池膨脹','耗電快','電池','續航','膨脹','很快沒電']},
   {key:'power',   label:'開不了機',words:['開不了機','無法開機','沒反應','不能開機','自動關機']},
-  {key:'charge',  label:'充電',   words:['充不了電','不能充電','充電孔','尾插','接觸不良']},
-  {key:'board',   label:'主機板', words:['主機板','板子','短路','燒板']},
-  {key:'camera',  label:'鏡頭',   words:['鏡頭裂','鏡頭','相機模糊','後鏡頭']},
+  {key:'charge',  label:'充電',    words:['充不了電','不能充電','充電孔','尾插','接觸不良']},
+  {key:'board',   label:'主機板',  words:['主機板','板子','短路','燒板']},
+  {key:'camera',  label:'鏡頭',    words:['鏡頭裂','鏡頭','相機模糊','後鏡頭']},
 ];
-
 const DEVICE_MAP = [
   {key:'iphone', label:'iPhone',  words:['iphone','ip13','ip14','ip15','蘋果手機']},
   {key:'ipad',   label:'iPad',    words:['ipad','平板']},
@@ -404,368 +339,509 @@ const DEVICE_MAP = [
   {key:'switch', label:'Switch',  words:['switch','ns主機']},
   {key:'laptop', label:'筆電',    words:['筆電','notebook','laptop']},
 ];
-
 const REGION_WORDS = ['中和','永和','板橋','南勢角','景安','新北','台北','臺北','新店','土城','雙北'];
 
-/* ---------- 示範資料（頁面內建，僅在看板還沒有資料時顯示） ---------- */
-const EXAMPLES = [
-  {id:'demo-1', demo:true, source:'PTT MobileComm', author:'kkman0930', url:'#',
-   posted_at:mins(8), title:'iPhone 14 螢幕摔破，台北有推薦的維修店嗎',
+function mins(m){ return new Date(Date.now() - m*60000).toISOString(); }
+function hrs(h){ return new Date(Date.now() + h*3600000).toISOString(); }
+
+/* ---------- 示範資料（看板還沒有自己的資料時才顯示） ---------- */
+const DEMO_ORDERS = [
+  {id:'d1', demo:true, no:'R-DEMO-01', customer:'林小姐', phone:'0912345678', device:'iPhone 14',
+   symptom:'右上角摔破一條裂痕，觸控正常，畫面完整', status:'ready', quote:3800, paid:0,
+   source:'現場', created_at:mins(300), due_at:mins(30), note:''},
+  {id:'d2', demo:true, no:'R-DEMO-02', customer:'王先生', phone:'0922333444', device:'Pixel 7',
+   symptom:'泡水後開不了機，已請客戶不要充電。要救裡面照片', status:'repair', quote:2600, paid:0,
+   source:'電話', created_at:mins(120), due_at:hrs(20), note:'資料優先，先報價再動工'},
+  {id:'d3', demo:true, no:'R-DEMO-03', customer:'陳先生', phone:'0933555666', device:'iPad Pro',
+   symptom:'電池膨脹把螢幕頂起來', status:'quoted', quote:2900, paid:0,
+   source:'網路線索', created_at:mins(45), due_at:hrs(48), note:'客戶還在考慮'},
+  {id:'d4', demo:true, no:'R-DEMO-04', customer:'黃小姐', phone:'0955777888', device:'iPhone 12',
+   symptom:'充電要喬角度，判斷尾插', status:'intake', quote:0, paid:0,
+   source:'現場', created_at:mins(12), due_at:hrs(6), note:''},
+  {id:'d5', demo:true, no:'R-DEMO-05', customer:'吳先生', phone:'0966888999', device:'Switch',
+   symptom:'搖桿飄移，已換左右類比', status:'done', quote:1200, paid:1200,
+   source:'現場', created_at:mins(420), due_at:mins(200), note:''},
+];
+
+const DEMO_POSTS = [
+  {id:'p1', demo:true, source:'PTT MobileComm', author:'kkman0930', url:'#', posted_at:mins(8),
+   title:'iPhone 14 螢幕摔破，台北有推薦的維修店嗎',
    body:'昨天不小心從腳踏車上摔下來，右上角整個裂開一條線，觸控目前還正常也還看得到畫面。想問一下台北或新北有沒有推薦的維修店，換總成大概要多少錢？原廠跟副廠差很多嗎？手機還想再撐個一年多。'},
-  {id:'demo-2', demo:true, source:'PTT MobileComm', author:'sunny1204', url:'#',
-   posted_at:mins(34), title:'請問 Pixel 7 泡水後開不了機還有救嗎',
+  {id:'p2', demo:true, source:'PTT MobileComm', author:'sunny1204', url:'#', posted_at:mins(34),
+   title:'請問 Pixel 7 泡水後開不了機還有救嗎',
    body:'洗澡放旁邊結果被水潑到，當下還會亮，放著一晚上今天就開不了機了。有先關機沒有一直試著充電。請問這種進水的狀況送修還有機會救回來嗎？裡面照片沒備份比較急，中和附近可以的話最好。'},
-  {id:'demo-3', demo:true, source:'Dcard 3c', author:'匿名', url:'#',
-   posted_at:mins(96), title:'iPad Pro 電池膨脹把螢幕頂起來了',
+  {id:'p3', demo:true, source:'Dcard 3c', author:'匿名', url:'#', posted_at:mins(96),
+   title:'iPad Pro 電池膨脹把螢幕頂起來了',
    body:'用了快四年，最近發現螢幕邊邊翹起來，看起來是電池膨脹。平常都放包包，有點怕會出事。想問這種還能換電池嗎還是直接換新比較實際，大概要抓多少預算？'},
-  {id:'demo-4', demo:true, source:'PTT nb-shopping', author:'techguy', url:'#',
-   posted_at:mins(150), title:'[開箱] 新筆電使用兩週心得分享',
-   body:'這次入手的機型效能不錯，跑分我另外貼在下面。散熱表現比上一代好很多，鍵盤手感見仁見智。整體來說以這個價位算是很有競爭力，推薦給需要文書加輕度剪片的人。'},
-  {id:'demo-5', demo:true, source:'PTT MobileComm', author:'lucky777', url:'#',
-   posted_at:mins(220), title:'感謝板友推薦，螢幕已修好了',
-   body:'上禮拜問的螢幕破裂問題，已經找到店家處理完了，換完跟新的一樣，價格也在預算內。感謝大家的建議，來回報一下結果給後面有需要的人參考。'},
-  {id:'demo-6', demo:true, source:'Dcard apple', author:'匿名', url:'#',
-   posted_at:mins(300), title:'iPhone 12 充電孔接觸不良，一直要喬角度才會充',
+  {id:'p4', demo:true, source:'PTT nb-shopping', author:'techguy', url:'#', posted_at:mins(150),
+   title:'[開箱] 新筆電使用兩週心得分享',
+   body:'這次入手的機型效能不錯，跑分我另外貼在下面。散熱表現比上一代好很多，鍵盤手感見仁見智。整體來說以這個價位算是很有競爭力。'},
+  {id:'p5', demo:true, source:'Dcard apple', author:'匿名', url:'#', posted_at:mins(300),
+   title:'iPhone 12 充電孔接觸不良，一直要喬角度才會充',
    body:'最近充電要一直喬線的角度才會進電，換過線跟豆腐頭都一樣，應該是尾插的問題。想問這個修一次大概多少，會不會拆完就容易再壞？我在板橋上班。'},
 ];
 
-function mins(m){ return new Date(Date.now() - m*60000).toISOString(); }
-
 /* ============================================================
-   儲存層：優先 db capability（跨裝置），退回 localStorage
+   儲存層：db capability 優先（跨裝置、即時），退回 localStorage
    ============================================================ */
 const LS = {
-  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
 };
 
 const store = {
-  db:null,
-  posts:new Map(),
-  settings:{ line_quota_used:0, quota_month:monthKey(), keywords:null },
+  db:null, ready:false,
+  orders:new Map(), posts:new Map(),
+  settings:{ line_quota_used:0, quota_month:monthKey(), keywords:null, seq:{} },
+  lastSync:null,
 
   async init(){
     try{
-      if (window.claude && typeof window.claude.use === 'function'){
-        this.db = await window.claude.use('db');
-      }
+      if (window.claude && typeof window.claude.use === 'function') this.db = await window.claude.use('db');
     }catch(e){ this.db = null; }
 
     if (this.db){
       try{
-        const snap = await this.db.collection('posts').limit(500).get();
-        (snap || []).forEach(d => { const v = d.data ? d.data() : d; if (v && v.id) this.posts.set(v.id, v); });
-        const cfg = await this.db.doc('config/settings').get();
-        const cv = cfg && (cfg.data ? cfg.data() : cfg);
-        if (cv) this.settings = Object.assign(this.settings, cv);
-        this.db.collection('posts').onSnapshot(list => {
-          (list || []).forEach(d => { const v = d.data ? d.data() : d; if (v && v.id) this.posts.set(v.id, v); });
-          render();
-        });
+        await this.pull();
+        this.db.collection('orders').onSnapshot(list => { this.absorb(list, this.orders); this.stamp(); render(); });
+        this.db.collection('posts').onSnapshot(list => { this.absorb(list, this.posts); this.stamp(); render(); });
       }catch(e){ this.db = null; }
     }
     if (!this.db){
-      LS.get('rr_posts', []).forEach(p => this.posts.set(p.id, p));
-      this.settings = Object.assign(this.settings, LS.get('rr_settings', {}));
+      LS.get('rr_orders',[]).forEach(o => this.orders.set(o.id,o));
+      LS.get('rr_posts',[]).forEach(p => this.posts.set(p.id,p));
+      this.settings = Object.assign(this.settings, LS.get('rr_settings',{}));
     }
     if (this.settings.quota_month !== monthKey()){
       this.settings.quota_month = monthKey();
       this.settings.line_quota_used = 0;
       this.saveSettings();
     }
+    this.ready = true; this.stamp();
   },
 
+  absorb(list, map){
+    (list||[]).forEach(d => { const v = d && d.data ? d.data() : d; if (v && v.id) map.set(v.id, v); });
+  },
+
+  /* 每分鐘自動重讀 */
+  async pull(){
+    if (!this.db) { this.stamp(); return; }
+    try{
+      const [os, ps, cfg] = await Promise.all([
+        this.db.collection('orders').limit(500).get(),
+        this.db.collection('posts').limit(500).get(),
+        this.db.doc('config/settings').get(),
+      ]);
+      this.orders.clear(); this.absorb(os, this.orders);
+      this.posts.clear();  this.absorb(ps, this.posts);
+      const cv = cfg && (cfg.data ? cfg.data() : cfg);
+      if (cv) this.settings = Object.assign(this.settings, cv);
+      this.stamp();
+    }catch(e){ /* 保留現有資料，下一輪再試 */ }
+  },
+
+  stamp(){ this.lastSync = new Date(); },
+
+  saveOrder(o){
+    this.orders.set(o.id,o);
+    if (this.db) this.db.doc('orders/'+o.id).set(o).catch(()=>{});
+    else LS.set('rr_orders',[...this.orders.values()]);
+    this.stamp();
+  },
+  removeOrder(id){
+    this.orders.delete(id);
+    if (this.db) this.db.doc('orders/'+id).delete().catch(()=>{});
+    else LS.set('rr_orders',[...this.orders.values()]);
+  },
   savePost(p){
-    this.posts.set(p.id, p);
-    if (this.db){ this.db.doc('posts/' + p.id).set(p).catch(()=>{}); }
-    else { LS.set('rr_posts', [...this.posts.values()]); }
+    this.posts.set(p.id,p);
+    if (this.db) this.db.doc('posts/'+p.id).set(p).catch(()=>{});
+    else LS.set('rr_posts',[...this.posts.values()]);
   },
   removePost(id){
     this.posts.delete(id);
-    if (this.db){ this.db.doc('posts/' + id).delete().catch(()=>{}); }
-    else { LS.set('rr_posts', [...this.posts.values()]); }
+    if (this.db) this.db.doc('posts/'+id).delete().catch(()=>{});
+    else LS.set('rr_posts',[...this.posts.values()]);
   },
   saveSettings(){
-    if (this.db){ this.db.doc('config/settings').set(this.settings).catch(()=>{}); }
-    else { LS.set('rr_settings', this.settings); }
+    if (this.db) this.db.doc('config/settings').set(this.settings).catch(()=>{});
+    else LS.set('rr_settings', this.settings);
   },
   keywords(){ return this.settings.keywords || DEFAULT_KEYWORDS; },
-};
 
-function monthKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+  nextNo(){
+    const d = new Date();
+    const day = String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+    const used = [...this.orders.values()].filter(o => (o.no||'').includes(day)).length;
+    return 'R'+day+'-'+String(used+1).padStart(2,'0');
+  },
+};
+function monthKey(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
 
 /* ============================================================
-   評分引擎
+   雷達評分
    ============================================================ */
-function normalize(s){ return (s || '').toLowerCase(); }
+function normalize(s){ return (s||'').toLowerCase(); }
 
-function scorePost(post, allPosts){
+function scorePost(post, allP){
   const kw = store.keywords();
-  const text = normalize(post.title + '\n' + post.body);
-  const hits = [];
-  let total = 0;
-
-  for (const [key, g] of Object.entries(kw)){
-    const found = (g.words || []).filter(w => w && text.includes(normalize(w)));
-    if (found.length){
-      total += g.weight;
-      hits.push({label:g.label, weight:g.weight, detail:found.slice(0,3).join('、')});
-    }
+  const text = normalize(post.title+'\n'+post.body);
+  const hits = []; let total = 0;
+  for (const g of Object.values(kw)){
+    const found = (g.words||[]).filter(w => w && text.includes(normalize(w)));
+    if (found.length){ total += g.weight; hits.push({label:g.label, weight:g.weight, detail:found.slice(0,3).join('、')}); }
   }
-
-  const ageMin = (Date.now() - new Date(post.posted_at).getTime()) / 60000;
-  if (ageMin <= 60){ total += RULE_FRESH.weight; hits.push({label:RULE_FRESH.label, weight:RULE_FRESH.weight, detail:Math.max(0,Math.round(ageMin)) + ' 分鐘前'}); }
-
-  const bodyLen = (post.body || '').replace(/\s/g,'').length;
-  if (bodyLen < 20){ total += RULE_SHORT.weight; hits.push({label:RULE_SHORT.label, weight:RULE_SHORT.weight, detail:bodyLen + ' 字'}); }
-
+  const ageMin = (Date.now() - new Date(post.posted_at).getTime())/60000;
+  if (ageMin <= 60){ total += RULE_FRESH.weight; hits.push({label:RULE_FRESH.label, weight:RULE_FRESH.weight, detail:Math.max(0,Math.round(ageMin))+' 分鐘前'}); }
+  const bodyLen = (post.body||'').replace(/\s/g,'').length;
+  if (bodyLen < 20){ total += RULE_SHORT.weight; hits.push({label:RULE_SHORT.label, weight:RULE_SHORT.weight, detail:bodyLen+' 字'}); }
   if (post.author && post.author !== '匿名'){
-    const same = (allPosts || []).filter(p => p.author === post.author).length;
-    if (same >= 3){ total += RULE_SHOP.weight; hits.push({label:RULE_SHOP.label, weight:RULE_SHOP.weight, detail:same + ' 篇'}); }
+    const same = (allP||[]).filter(p => p.author === post.author).length;
+    if (same >= 3){ total += RULE_SHOP.weight; hits.push({label:RULE_SHOP.label, weight:RULE_SHOP.weight, detail:same+' 篇'}); }
   }
-
   return { score: Math.max(0, Math.min(100, total)), hits };
 }
-
-function detect(map, text){
-  const t = normalize(text);
-  return map.filter(m => m.words.some(w => t.includes(normalize(w)))).map(m => m.label);
-}
-function detectRegion(text){
-  return REGION_WORDS.filter(w => text.includes(w));
-}
+function detect(map, text){ const t = normalize(text); return map.filter(m => m.words.some(w => t.includes(normalize(w)))).map(m => m.label); }
+function detectRegion(text){ return [...new Set(REGION_WORDS.filter(w => text.includes(w)))]; }
 
 function enrich(post, all){
-  const {score, hits} = scorePost(post, all);
-  const text = post.title + '\n' + post.body;
+  const {score,hits} = scorePost(post, all);
+  const text = post.title+'\n'+post.body;
   return Object.assign({}, post, {
-    score,
-    hits,
+    score, hits,
     devices: detect(DEVICE_MAP, text),
     issues: detect(ISSUE_MAP, text),
-    regions: [...new Set(detectRegion(text))],
+    regions: detectRegion(text),
     status: post.status || 'new',
   });
 }
-
-/* ---------- LINE 額度與門檻 ---------- */
 function threshold(){
   const used = store.settings.line_quota_used || 0;
   if (used >= 195) return {value:Infinity, mode:'off'};
   if (used >= 180) return {value:85, mode:'tight'};
   return {value:70, mode:'normal'};
 }
+const PSTATUS = { new:'未處理', contact:'已聯絡', deal:'已成交', skip:'不適合' };
 
 /* ============================================================
-   話術生成
+   話術
    ============================================================ */
 const PITCH_OPENERS = {
   '螢幕': d => `${d} 螢幕摔破如果觸控還正常、顯示也沒有線條，通常換總成就好，內部零件多半沒事。原廠料跟副廠價差不少，看你打算再用多久決定就行。`,
-  '進水': d => `${d} 進水最怕的是通電，先別急著開機或充電，也不要用吹風機熱風吹。越早拆開做超音波清洗、把腐蝕擋下來，救回來的機會越高，資料通常也還在。`,
-  '電池': d => `${d} 這種膨脹或掉電特別快，八成是電池循環數到了，換電池就好，不用整台換。膨脹會頂到螢幕，建議別再拖，越頂越貴。`,
-  '開不了機': d => `${d} 完全沒反應的話，先排除電池跟尾插這兩個，是最常見也最便宜的原因。真的都不是才會往主機板方向查，那個才是大工程。`,
-  '充電': d => `${d} 充電要喬角度通常是尾插排線鬆或積灰，單換尾插就能解決，不用動到主機板。原廠線都試過還這樣，基本上可以確定是接口了。`,
-  '主機板': d => `${d} 主機板的問題要看是哪一組電路，通常要上機測才知道。這種修之前一定要先確認資料還救不救得回來，順序不能反。`,
-  '鏡頭': d => `${d} 鏡頭玻璃裂通常只要換外層玻璃，模組本身沒事的話成本差很多，不用直接換整組。`,
+  '進水': d => `${d} 進水最怕的是通電，先別急著開機或充電，也不要用吹風機熱風吹。越早拆開做清洗、把腐蝕擋下來，救回來的機會越高，資料通常也還在。`,
+  '電池': d => `${d} 這種膨脹或掉電特別快，八成是電池循環數到了，換電池就好，不用整台換。膨脹會頂到螢幕，別再拖，越頂越貴。`,
+  '開不了機': d => `${d} 完全沒反應的話，先排除電池跟尾插這兩個，是最常見也最便宜的原因。真的都不是才會往主機板方向查。`,
+  '充電': d => `${d} 充電要喬角度通常是尾插排線鬆或積灰，單換尾插就能解決，不用動到主機板。`,
+  '主機板': d => `${d} 主機板的問題要看是哪一組電路，通常要上機測才知道。修之前一定要先確認資料還救不救得回來。`,
+  '鏡頭': d => `${d} 鏡頭玻璃裂通常只要換外層玻璃，模組本身沒事的話成本差很多。`,
 };
-
 function makePitch(p){
   const device = p.devices[0] || '你的機器';
-  const issue = p.issues[0];
-  const opener = (PITCH_OPENERS[issue] || (d => `${d} 這個狀況要先做檢測才能確定是哪個零件出問題，這種通常不會只有一個可能。`))(device);
-  const local = p.regions.length
-    ? `你在${p.regions[0]}的話離我很近，`
-    : `不方便跑一趟的話也可以寄修，`;
-  const close = `我在中和有在做這塊，${local}需要的話可以先幫你估個價，檢測不收費也不用先付錢。`;
-  return opener + '\n\n' + close;
+  const opener = (PITCH_OPENERS[p.issues[0]] || (d => `${d} 這個狀況要先做檢測才能確定是哪個零件出問題。`))(device);
+  const local = p.regions.length ? `你在${p.regions[0]}的話離我很近，` : `不方便跑一趟的話也可以寄修，`;
+  return opener + '\n\n' + `我在中和有在做這塊，${local}需要的話可以先幫你估個價，檢測不收費也不用先付錢。`;
+}
+function readyMsg(o){
+  const amt = o.quote ? `費用是 ${o.quote} 元，` : '';
+  return `${o.customer}您好，這裡是維修門市。您的 ${o.device} 已經修好可以取件了，${amt}營業時間內隨時過來都可以。單號 ${o.no}，取件時報單號或電話就行。`;
+}
+function quoteMsg(o){
+  return `${o.customer}您好，您的 ${o.device} 檢測完成了。狀況是${o.symptom || '需要更換零件'}，維修費用 ${o.quote || '（待填）'} 元，含料件與工資，修好保固三個月。方便的話回覆一下要不要進行，我這邊就排進去。`;
 }
 
 /* ============================================================
-   Render
+   狀態
    ============================================================ */
-const state = { status:'all', device:'', source:'', minScore:0, hours:0, q:'' };
-let usingExamples = false;
+const state = {
+  view:'orders',
+  oStatus:'active',
+  q:'',
+  pStatus:'all', pDevice:'', pSource:'', pMinScore:0, pHours:0,
+};
+let usingDemoOrders = false, usingDemoPosts = false;
 
+function allOrders(){
+  const real = [...store.orders.values()];
+  usingDemoOrders = real.length === 0;
+  const base = usingDemoOrders ? DEMO_ORDERS : real;
+  return base.map(o => Object.assign({}, o, {
+    late: o.due_at && !['done','lost'].includes(o.status) && new Date(o.due_at) < new Date(),
+  })).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+}
 function allPosts(){
   const real = [...store.posts.values()];
-  usingExamples = real.length === 0;
-  const base = usingExamples ? EXAMPLES : real;
+  usingDemoPosts = real.length === 0;
+  const base = usingDemoPosts ? DEMO_POSTS : real;
   return base.map(p => enrich(p, base)).sort((a,b) => new Date(b.posted_at) - new Date(a.posted_at));
 }
 
 function relTime(iso){
   const m = Math.round((Date.now() - new Date(iso).getTime())/60000);
   if (m < 1) return '剛剛';
-  if (m < 60) return m + ' 分鐘前';
-  if (m < 1440) return Math.floor(m/60) + ' 小時前';
-  return Math.floor(m/1440) + ' 天前';
+  if (m < 60) return m+' 分鐘前';
+  if (m < 1440) return Math.floor(m/60)+' 小時前';
+  return Math.floor(m/1440)+' 天前';
 }
-function tierOf(s){ const t = threshold().value === Infinity ? 70 : threshold().value;
-  if (s >= t) return 'hot'; if (s >= 50) return 'warm'; if (s >= 30) return 'cool'; return 'cold'; }
+function dueTime(iso){
+  const m = Math.round((new Date(iso).getTime() - Date.now())/60000);
+  if (m < 0) return {txt:'逾期 '+fmtDur(-m), late:true};
+  return {txt:'剩 '+fmtDur(m), late:false};
+}
+function fmtDur(m){ return m < 60 ? m+' 分' : m < 1440 ? Math.floor(m/60)+' 小時' : Math.floor(m/1440)+' 天'; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function money(n){ return (n||0).toLocaleString('en-US'); }
 
-function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
+/* ============================================================
+   Render
+   ============================================================ */
 function render(){
-  const posts = allPosts();
-  renderQuota(posts);
-  renderStats(posts);
-  renderChips(posts);
-  renderBoard(posts);
+  const orders = allOrders(), posts = allPosts();
+  renderSync();
+  document.getElementById('tabOrders').textContent = orders.filter(o => !['done','lost'].includes(o.status)).length;
+  const t = threshold().value === Infinity ? 70 : threshold().value;
+  document.getElementById('tabRadar').textContent = posts.filter(p => p.status === 'new' && p.score >= t).length;
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === state.view)));
+  document.getElementById('fab').textContent = state.view === 'orders' ? '＋ 接單' : '＋ 貼上需求';
+
+  if (state.view === 'orders'){ renderOrderView(orders); }
+  else { renderRadarView(posts); }
 }
 
-function renderQuota(posts){
-  const t = threshold();
-  const used = store.settings.line_quota_used || 0;
-  const el = document.getElementById('quotaNotice');
-  if (t.mode === 'normal'){ el.innerHTML = usingExamples
-    ? `<div class="notice"><span>◆</span><div><strong>目前顯示示範資料。</strong>按右下「貼上需求」加入第一則真實貼文，或用右上「匯入」貼上爬蟲產出的 JSON，示範資料就會自動消失。</div></div>`
-    : ''; return; }
-  const msg = t.mode === 'off'
-    ? `<strong>本月 LINE 額度已滿（${used}/200）。</strong>推播全部改走 Telegram，看板照常更新。額度每月 1 日歸零。`
-    : `<strong>LINE 額度剩 ${200-used} 則。</strong>推播門檻已自動從 70 分提高到 85 分，只有最有把握的才會通知。`;
-  el.innerHTML = `<div class="notice ${t.mode==='off'?'hot':''}"><span>◆</span><div>${msg}</div></div>`;
+function renderSync(){
+  const el = document.getElementById('syncTxt');
+  if (!store.lastSync){ el.textContent = '載入中'; return; }
+  const hh = String(store.lastSync.getHours()).padStart(2,'0');
+  const mm = String(store.lastSync.getMinutes()).padStart(2,'0');
+  el.textContent = (store.db ? '同步 ' : '本機 ') + hh + ':' + mm;
 }
+function beat(){ const s = document.getElementById('sync'); s.classList.remove('beat'); void s.offsetWidth; s.classList.add('beat'); }
 
-function renderStats(posts){
-  const today = posts.filter(p => new Date(p.posted_at).toDateString() === new Date().toDateString()).length;
-  const used = store.settings.line_quota_used || 0;
-  const left = Math.max(0, 200 - used);
-  const contacted = posts.filter(p => p.status !== 'new').length;
-  const deals = posts.filter(p => p.status === 'deal').length;
-  const rate = contacted ? Math.round(deals/contacted*100) : 0;
-  const t = threshold();
-  const hot = posts.filter(p => p.status === 'new' && p.score >= (t.value === Infinity ? 70 : t.value)).length;
-  const pct = Math.round(left/200*100);
-  const cls = left <= 5 ? 'alert' : left <= 20 ? 'warn' : '';
+/* ---------- 接單看板 ---------- */
+function renderOrderView(orders){
+  const today = new Date().toDateString();
+  const todays = orders.filter(o => new Date(o.created_at).toDateString() === today);
+  const inShop = orders.filter(o => ['intake','quoted','repair'].includes(o.status));
+  const ready = orders.filter(o => o.status === 'ready');
+  const late = orders.filter(o => o.late);
+  const revenue = orders.filter(o => o.status === 'done' && new Date(o.created_at).toDateString() === today)
+                        .reduce((s,o) => s + (o.paid || o.quote || 0), 0);
+
+  document.getElementById('notices').innerHTML = [
+    usingDemoOrders ? `<div class="notice"><span>◆</span><div><strong>目前是示範工單。</strong>按右下「接單」開第一張單，示範資料就會消失。畫面每分鐘自動更新一次。</div></div>` : '',
+    late.length ? `<div class="notice hot"><span>◆</span><div><strong>${late.length} 張單已逾期。</strong>超過預計完成時間還沒交件，先處理這幾張。</div></div>` : '',
+  ].join('');
 
   document.getElementById('stats').innerHTML = `
-    <div class="stat ${hot?'warn':''}">
-      <span class="k">現在該回</span>
-      <span class="v">${hot}</span>
-      <span class="n">未處理且 ≥ ${t.value===Infinity?70:t.value} 分</span>
+    <div class="stat ${ready.length?'go':''}">
+      <span class="k">待取件</span><span class="v">${ready.length}</span>
+      <span class="n">可以通知客戶了</span>
     </div>
-    <div class="stat">
-      <span class="k">今日新增</span>
-      <span class="v">${today}</span>
-      <span class="n">共 ${posts.length} 則在看板</span>
+    <div class="stat ${late.length?'alert':''}">
+      <span class="k">店內在修</span><span class="v">${inShop.length}</span>
+      <span class="n">${late.length ? late.length+' 張逾期' : '沒有逾期'}</span>
     </div>
-    <div class="stat ${cls}">
-      <span class="k">LINE 額度</span>
-      <span class="v">${left}</span>
-      <span class="n">已用 ${used}／200</span>
-      <span class="quota-bar ${cls}"><i style="width:${pct}%"></i></span>
-    </div>
-    <div class="stat">
-      <span class="k">成交轉換</span>
-      <span class="v">${rate}%</span>
-      <span class="n">${deals} 成交 / ${contacted} 已處理</span>
-    </div>`;
-}
+    <div class="stat"><span class="k">今日進單</span><span class="v">${todays.length}</span>
+      <span class="n">共 ${orders.length} 張在系統</span></div>
+    <div class="stat"><span class="k">今日營收</span><span class="v">${money(revenue)}</span>
+      <span class="n">已完成取件的單</span></div>`;
 
-function renderChips(posts){
-  const counts = {all:posts.length};
-  Object.keys(STATUS).forEach(k => counts[k] = posts.filter(p => p.status === k).length);
-  const items = [['all','全部'], ...Object.entries(STATUS).map(([k,v]) => [k, v.label])];
-  document.getElementById('chipsStatus').innerHTML = items.map(([k,label]) =>
-    `<button class="chip" data-status="${k}" aria-pressed="${state.status===k}">${label}<span class="cnt">${counts[k]||0}</span></button>`
-  ).join('');
+  const counts = {
+    active: orders.filter(o => !['done','lost'].includes(o.status)).length,
+    all: orders.length,
+  };
+  FLOW.concat('lost').forEach(k => counts[k] = orders.filter(o => o.status === k).length);
+  const chips = [['active','進行中'],['intake','待檢測'],['quoted','報價中'],['repair','維修中'],['ready','待取件'],['done','已完成'],['lost','未成交'],['all','全部']];
+  document.getElementById('filters').innerHTML = `
+    <div class="chiprow">${chips.map(([k,l]) =>
+      `<button class="chip" data-ostatus="${k}" aria-pressed="${state.oStatus===k}">${l}<span class="cnt">${counts[k]||0}</span></button>`).join('')}</div>
+    <div class="searchrow"><input type="search" id="q" placeholder="搜尋客戶、電話、單號、機型…" value="${esc(state.q)}" autocomplete="off"></div>`;
+  bindSearch();
 
-  const devs = [...new Set(posts.flatMap(p => p.devices))];
-  const issues = [...new Set(posts.flatMap(p => p.issues))];
-  const tags = [...devs.map(d=>['device',d]), ...issues.map(i=>['issue',i])];
-  document.getElementById('chipsDevice').innerHTML = tags.length
-    ? `<button class="chip" data-device="" aria-pressed="${state.device===''}">不分類型</button>` +
-      tags.map(([kind,v]) => `<button class="chip" data-device="${esc(v)}" aria-pressed="${state.device===v}">${esc(v)}</button>`).join('')
-    : '';
-
-  const srcSel = document.getElementById('fSource');
-  const sources = [...new Set(posts.map(p => p.source))].sort();
-  const cur = srcSel.value;
-  srcSel.innerHTML = '<option value="">全部來源</option>' + sources.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
-  srcSel.value = cur;
-}
-
-function match(p){
-  if (state.status !== 'all' && p.status !== state.status) return false;
-  if (state.device && !p.devices.includes(state.device) && !p.issues.includes(state.device)) return false;
-  if (state.source && p.source !== state.source) return false;
-  if (p.score < state.minScore) return false;
-  if (state.hours){
-    const h = (Date.now() - new Date(p.posted_at).getTime())/3600000;
-    if (h > state.hours) return false;
-  }
-  if (state.q){
-    const t = normalize(p.title + p.body + p.author + p.source);
-    if (!t.includes(normalize(state.q))) return false;
-  }
-  return true;
-}
-
-function renderBoard(posts){
-  const shown = posts.filter(match);
-  const t = threshold().value === Infinity ? 70 : threshold().value;
-  const act = shown.filter(p => p.status === 'new' && p.score >= t);
-  const other = shown.filter(p => p.status === 'new' && p.score < t);
-  const handled = shown.filter(p => p.status !== 'new');
+  let shown = orders.filter(o => {
+    if (state.oStatus === 'active' && ['done','lost'].includes(o.status)) return false;
+    if (!['active','all'].includes(state.oStatus) && o.status !== state.oStatus) return false;
+    if (state.q){
+      const t = normalize([o.customer,o.phone,o.no,o.device,o.symptom,o.note].join(' '));
+      if (!t.includes(normalize(state.q))) return false;
+    }
+    return true;
+  });
 
   const board = document.getElementById('board');
   if (!shown.length){
-    board.innerHTML = `<div class="empty" style="margin-top:20px">這個篩選條件下沒有貼文。放寬條件，或按右下角「貼上需求」新增一則。</div>`;
-    return;
+    board.innerHTML = `<div class="empty" style="margin-top:20px">這個條件下沒有工單。按右下「接單」開一張新的。</div>`;
+  } else {
+    const lateOnes = shown.filter(o => o.late);
+    const readyOnes = shown.filter(o => !o.late && o.status === 'ready');
+    const working = shown.filter(o => !o.late && ['intake','quoted','repair'].includes(o.status));
+    const closed = shown.filter(o => ['done','lost'].includes(o.status));
+    let html = '';
+    if (lateOnes.length)  html += section('逾期，先處理', lateOnes.length, lateOnes.map(orderCard).join(''));
+    if (readyOnes.length) html += section('待取件，可通知', readyOnes.length, readyOnes.map(orderCard).join(''));
+    if (working.length)   html += section('店內處理中', working.length, working.map(orderCard).join(''));
+    if (closed.length)    html += section('已結案', closed.length, closed.map(orderCard).join(''));
+    board.innerHTML = html;
   }
-  let html = '';
-  if (act.length) html += section('現在該回', act.length, act.map(card).join(''));
-  if (other.length) html += section('其餘需求', other.length, other.map(card).join(''));
-  if (handled.length) html += section('已處理', handled.length, handled.map(card).join(''));
-  board.innerHTML = html;
+
+  document.getElementById('footer').innerHTML = `
+    <div>接單流程：待檢測 → 報價中 → 維修中 → 待取件 → 已完成。每張單按綠色按鈕推進下一階段，客戶不修就按「未成交」。</div>
+    <div>畫面每 60 秒自動重讀資料並更新逾期狀態；${store.db ? '工單存在雲端，換手機或平板都看得到同一份。' : '目前存在這台裝置的瀏覽器裡。'}</div>`;
 }
 
-function section(title, n, inner){
-  return `<div class="section-head"><h2>${title}</h2><span class="n">${n}</span><span class="rule"></span></div><div class="list">${inner}</div>`;
-}
-
-function card(p){
-  const tier = tierOf(p.score);
-  const tags = [
-    ...p.devices.map(d => `<span class="tag device">${esc(d)}</span>`),
-    ...p.issues.map(i => `<span class="tag issue">${esc(i)}</span>`),
-    ...p.regions.slice(0,2).map(r => `<span class="tag region">${esc(r)}</span>`),
-    p.demo ? '<span class="tag">示範</span>' : '',
-  ].join('');
-  const statusBtns = Object.entries(STATUS).map(([k,v]) =>
-    `<button data-s="${k}" data-id="${p.id}" aria-pressed="${p.status===k}">${v.label}</button>`).join('');
-
-  const bd = p.hits.map(h =>
-    `<div><b>${esc(h.label)}</b> <span class="${h.weight>0?'plus':'minus'}">${h.weight>0?'+':''}${h.weight}</span>${h.detail?` <span style="opacity:.7">${esc(h.detail)}</span>`:''}</div>`
-  ).join('') || '<div>沒有命中任何關鍵字</div>';
-
+function orderCard(o){
+  const st = OSTATUS[o.status] || OSTATUS.intake;
+  const due = o.due_at ? dueTime(o.due_at) : null;
+  const tel = (o.phone||'').replace(/[^0-9+]/g,'');
   return `
-  <article class="post tier-${tier} ${p.status!=='new'?'done':''}" data-id="${p.id}">
-    <div class="spine">
-      <span class="score mono">${p.score}</span>
-      <span class="lbl">分</span>
-      ${tier==='hot' && p.status==='new' ? '<span class="dot"></span>' : ''}
-    </div>
-    <div class="body">
-      <div class="meta">
-        <span class="src">${esc(p.source)}</span><span class="sep">·</span>
-        <span>${esc(p.author||'—')}</span><span class="sep">·</span>
-        <span>${relTime(p.posted_at)}</span>
+  <article class="order s-${o.status} ${o.late?'late':''}" data-oid="${o.id}">
+    <div class="stripe"></div>
+    <div class="o-body">
+      <div class="o-top">
+        <div style="min-width:0">
+          <div class="o-no">${esc(o.no)}　收件 ${relTime(o.created_at)}</div>
+          <div class="o-name">${esc(o.customer||'—')}${tel?` <a href="tel:${esc(tel)}" class="mono" style="font-size:13px;font-weight:500;color:var(--text-2)">${esc(o.phone)}</a>`:''}</div>
+        </div>
+        <span class="o-pill">${st.label}</span>
       </div>
-      <h3>${p.url && p.url !== '#' ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title)}</h3>
+      <div class="o-device">${esc(o.device||'未填機型')}</div>
+      ${o.symptom?`<p class="o-symptom">${esc(o.symptom)}</p>`:''}
+      <div class="o-facts">
+        ${o.quote?`<span>報價 <b>${money(o.quote)}</b></span>`:'<span>尚未報價</span>'}
+        ${o.paid?`<span>實收 <b>${money(o.paid)}</b></span>`:''}
+        ${due?`<span class="${due.late?'late-txt':''}">${o.status==='done'||o.status==='lost'?'':'預計 '+due.txt}</span>`:''}
+        ${o.source?`<span class="tag src">${esc(o.source)}</span>`:''}
+      </div>
+      ${o.note?`<div class="o-facts"><span>備註：${esc(o.note)}</span></div>`:''}
+      <div class="o-actions">
+        ${st.next?`<button class="btn sm go" data-oact="next" data-oid="${o.id}">${st.nextLabel} →</button>`:''}
+        ${o.status==='ready'?`<button class="btn sm" data-oact="notify" data-oid="${o.id}">取件通知</button>`:''}
+        ${o.status==='quoted'?`<button class="btn sm" data-oact="quotemsg" data-oid="${o.id}">報價話術</button>`:''}
+        <button class="btn ghost sm" data-oact="edit" data-oid="${o.id}">編輯</button>
+        ${['done','lost'].includes(o.status)?'':`<button class="btn ghost sm" data-oact="lost" data-oid="${o.id}">未成交</button>`}
+        ${o.demo?'':`<button class="btn ghost sm" data-oact="del" data-oid="${o.id}">刪除</button>`}
+      </div>
+      <div class="slot-msg"></div>
+    </div>
+  </article>`;
+}
+
+/* ---------- 雷達看板 ---------- */
+function renderRadarView(posts){
+  const t = threshold();
+  const used = store.settings.line_quota_used || 0;
+  const tv = t.value === Infinity ? 70 : t.value;
+  const hot = posts.filter(p => p.status === 'new' && p.score >= tv).length;
+  const today = posts.filter(p => new Date(p.posted_at).toDateString() === new Date().toDateString()).length;
+  const contacted = posts.filter(p => p.status !== 'new').length;
+  const deals = posts.filter(p => p.status === 'deal').length;
+  const left = Math.max(0, 200-used), pct = Math.round(left/200*100);
+  const cls = left <= 5 ? 'alert' : left <= 20 ? 'warn' : '';
+
+  const msgs = [];
+  if (usingDemoPosts) msgs.push(`<div class="notice"><span>◆</span><div><strong>目前是示範線索。</strong>用右上「匯入」貼上爬蟲產出的 JSON，或按右下手動貼一則。</div></div>`);
+  if (t.mode === 'off') msgs.push(`<div class="notice hot"><span>◆</span><div><strong>本月 LINE 額度已滿（${used}/200）。</strong>推播改走 Telegram，看板照常更新。</div></div>`);
+  else if (t.mode === 'tight') msgs.push(`<div class="notice"><span>◆</span><div><strong>LINE 額度剩 ${left} 則。</strong>推播門檻已自動從 70 分提高到 85 分。</div></div>`);
+  document.getElementById('notices').innerHTML = msgs.join('');
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat ${hot?'warn':''}"><span class="k">現在該回</span><span class="v">${hot}</span><span class="n">未處理且 ≥ ${tv} 分</span></div>
+    <div class="stat"><span class="k">今日新增</span><span class="v">${today}</span><span class="n">共 ${posts.length} 則線索</span></div>
+    <div class="stat ${cls}"><span class="k">LINE 額度</span><span class="v">${left}</span><span class="n">已用 ${used}／200</span>
+      <span class="quota-bar ${cls}"><i style="width:${pct}%"></i></span></div>
+    <div class="stat"><span class="k">成交轉換</span><span class="v">${contacted?Math.round(deals/contacted*100):0}%</span><span class="n">${deals} 成交 / ${contacted} 已處理</span></div>`;
+
+  const counts = {all:posts.length};
+  Object.keys(PSTATUS).forEach(k => counts[k] = posts.filter(p => p.status === k).length);
+  const devs = [...new Set(posts.flatMap(p => p.devices))];
+  const issues = [...new Set(posts.flatMap(p => p.issues))];
+  const sources = [...new Set(posts.map(p => p.source))].sort();
+
+  document.getElementById('filters').innerHTML = `
+    <div class="chiprow">${[['all','全部'],...Object.entries(PSTATUS)].map(([k,l]) =>
+      `<button class="chip" data-pstatus="${k}" aria-pressed="${state.pStatus===k}">${l}<span class="cnt">${counts[k]||0}</span></button>`).join('')}</div>
+    <div class="searchrow">
+      <input type="search" id="q" placeholder="搜尋標題、內文、作者…" value="${esc(state.q)}" autocomplete="off">
+      <select id="fSource"><option value="">全部來源</option>${sources.map(s=>`<option value="${esc(s)}" ${state.pSource===s?'selected':''}>${esc(s)}</option>`).join('')}</select>
+      <select id="fScore">${[[0,'全部分數'],[50,'50 分以上'],[70,'70 分以上'],[85,'85 分以上']].map(([v,l])=>`<option value="${v}" ${state.pMinScore==v?'selected':''}>${l}</option>`).join('')}</select>
+      <select id="fTime">${[[0,'不限時間'],[1,'1 小時內'],[6,'6 小時內'],[24,'24 小時內']].map(([v,l])=>`<option value="${v}" ${state.pHours==v?'selected':''}>${l}</option>`).join('')}</select>
+    </div>
+    ${(devs.length||issues.length)?`<div class="chiprow" style="margin-top:8px">
+      <button class="chip" data-pdevice="" aria-pressed="${state.pDevice===''}">不分類型</button>
+      ${[...devs,...issues].map(v=>`<button class="chip" data-pdevice="${esc(v)}" aria-pressed="${state.pDevice===v}">${esc(v)}</button>`).join('')}</div>`:''}`;
+  bindSearch();
+  document.getElementById('fSource').onchange = e => { state.pSource = e.target.value; render(); };
+  document.getElementById('fScore').onchange  = e => { state.pMinScore = +e.target.value; render(); };
+  document.getElementById('fTime').onchange   = e => { state.pHours = +e.target.value; render(); };
+
+  const shown = posts.filter(p => {
+    if (state.pStatus !== 'all' && p.status !== state.pStatus) return false;
+    if (state.pDevice && !p.devices.includes(state.pDevice) && !p.issues.includes(state.pDevice)) return false;
+    if (state.pSource && p.source !== state.pSource) return false;
+    if (p.score < state.pMinScore) return false;
+    if (state.pHours && (Date.now()-new Date(p.posted_at).getTime())/3600000 > state.pHours) return false;
+    if (state.q && !normalize(p.title+p.body+p.author+p.source).includes(normalize(state.q))) return false;
+    return true;
+  });
+
+  const board = document.getElementById('board');
+  if (!shown.length){ board.innerHTML = `<div class="empty" style="margin-top:20px">這個篩選條件下沒有線索。</div>`; }
+  else {
+    const act = shown.filter(p => p.status === 'new' && p.score >= tv);
+    const rest = shown.filter(p => p.status === 'new' && p.score < tv);
+    const handled = shown.filter(p => p.status !== 'new');
+    let html = '';
+    if (act.length) html += section('現在該回', act.length, act.map(postCard).join(''));
+    if (rest.length) html += section('其餘需求', rest.length, rest.map(postCard).join(''));
+    if (handled.length) html += section('已處理', handled.length, handled.map(postCard).join(''));
+    board.innerHTML = html;
+  }
+
+  document.getElementById('footer').innerHTML = `
+    <div>線索由爬蟲層（GitHub Actions）產出後匯入；瀏覽器不能直接連 PTT／Dcard，跨網域會被擋，自動抓取必須跑在伺服器端。</div>
+    <div>匯入格式：<code>[{title, body, source, url, author, posted_at}]</code>，以 url 去重。談成的線索按「轉成工單」直接進接單流程。</div>`;
+}
+
+function postCard(p){
+  const tv = threshold().value === Infinity ? 70 : threshold().value;
+  const tier = p.score >= tv ? 'hot' : p.score >= 50 ? 'warm' : p.score >= 30 ? 'cool' : 'cold';
+  const tags = [
+    ...p.devices.map(d=>`<span class="tag device">${esc(d)}</span>`),
+    ...p.issues.map(i=>`<span class="tag issue">${esc(i)}</span>`),
+    ...p.regions.slice(0,2).map(r=>`<span class="tag region">${esc(r)}</span>`),
+    p.demo?'<span class="tag">示範</span>':'',
+  ].join('');
+  const bd = p.hits.map(h => `<div><b>${esc(h.label)}</b> <span class="${h.weight>0?'plus':'minus'}">${h.weight>0?'+':''}${h.weight}</span>${h.detail?` <span style="opacity:.7">${esc(h.detail)}</span>`:''}</div>`).join('') || '<div>沒有命中任何關鍵字</div>';
+  return `
+  <article class="post tier-${tier} ${p.status!=='new'?'done':''}" data-pid="${p.id}">
+    <div class="spine"><span class="score mono">${p.score}</span><span class="lbl">分</span>${tier==='hot'&&p.status==='new'?'<span class="dot"></span>':''}</div>
+    <div class="pbody">
+      <div class="meta"><span class="src">${esc(p.source)}</span><span class="sep">·</span><span>${esc(p.author||'—')}</span><span class="sep">·</span><span>${relTime(p.posted_at)}</span></div>
+      <h3>${p.url&&p.url!=='#'?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>`:esc(p.title)}</h3>
       <p class="excerpt">${esc(p.body)}</p>
-      ${tags ? `<div class="tags">${tags}</div>` : ''}
+      ${tags?`<div class="tags">${tags}</div>`:''}
       <div class="rowactions">
-        <div class="statusgroup">${statusBtns}</div>
-        <button class="btn sm" data-act="pitch" data-id="${p.id}">產生話術</button>
-        <button class="btn ghost sm" data-act="expand" data-id="${p.id}">全文</button>
-        <button class="btn ghost sm" data-act="why" data-id="${p.id}">分數怎麼算</button>
-        ${p.demo ? '' : `<button class="btn ghost sm" data-act="del" data-id="${p.id}" title="從看板移除">刪除</button>`}
+        <button class="btn sm primary" data-pact="toorder" data-pid="${p.id}">轉成工單</button>
+        <div class="statusgroup">${Object.entries(PSTATUS).map(([k,l])=>`<button data-ps="${k}" data-pid="${p.id}" aria-pressed="${p.status===k}">${l}</button>`).join('')}</div>
+        <button class="btn sm" data-pact="pitch" data-pid="${p.id}">產生話術</button>
+        <button class="btn ghost sm" data-pact="expand" data-pid="${p.id}">全文</button>
+        <button class="btn ghost sm" data-pact="why" data-pid="${p.id}">分數怎麼算</button>
+        ${p.demo?'':`<button class="btn ghost sm" data-pact="del" data-pid="${p.id}">刪除</button>`}
       </div>
       <div class="slot-pitch"></div>
       <div class="slot-why" hidden><div class="breakdown">${bd}</div></div>
     </div>
   </article>`;
+}
+
+function section(title,n,inner){
+  return `<div class="section-head"><h2>${title}</h2><span class="n">${n}</span><span class="rule"></span></div><div class="list">${inner}</div>`;
+}
+
+function bindSearch(){
+  const q = document.getElementById('q');
+  if (!q) return;
+  q.oninput = e => { state.q = e.target.value.trim(); render(); const n = document.getElementById('q'); if (n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } };
 }
 
 /* ============================================================
@@ -774,85 +850,108 @@ function card(p){
 function toast(msg){
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
-  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('show'), 1900);
+  clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'), 2000);
+}
+function findOrder(id){ return allOrders().find(o => o.id === id); }
+function findPost(id){ return allPosts().find(p => p.id === id); }
+function msgBox(text, id){
+  return `<div class="o-note" style="margin-top:8px">${esc(text)}<div class="na">
+    <button class="btn sm primary" data-copy="${id}">複製</button>
+    <button class="btn sm" data-closemsg="1">關閉</button></div></div>`;
 }
 
-function findPost(id){ return allPosts().find(p => p.id === id); }
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => {
+  state.view = b.dataset.view; state.q = ''; render(); window.scrollTo({top:0});
+}));
 
 document.addEventListener('click', e => {
-  const chip = e.target.closest('[data-status]');
-  if (chip){ state.status = chip.dataset.status; render(); return; }
+  /* 篩選 */
+  const c1 = e.target.closest('[data-ostatus]'); if (c1){ state.oStatus = c1.dataset.ostatus; render(); return; }
+  const c2 = e.target.closest('[data-pstatus]'); if (c2){ state.pStatus = c2.dataset.pstatus; render(); return; }
+  const c3 = e.target.closest('[data-pdevice]'); if (c3){ state.pDevice = c3.dataset.pdevice; render(); return; }
 
-  const dchip = e.target.closest('[data-device]');
-  if (dchip){ state.device = dchip.dataset.device; render(); return; }
+  /* 複製 / 關閉訊息 */
+  const cp = e.target.closest('[data-copy]');
+  if (cp){
+    const box = cp.closest('.o-note') || cp.closest('.pitch');
+    const text = box._text || box.childNodes[0].textContent;
+    navigator.clipboard.writeText(text).then(()=>toast('已複製，可直接貼到 LINE'),()=>toast('複製失敗，請長按選取'));
+    return;
+  }
+  if (e.target.closest('[data-closemsg]')){ e.target.closest('.slot-msg').innerHTML = ''; return; }
 
-  const sBtn = e.target.closest('.statusgroup button');
-  if (sBtn){
-    const p = findPost(sBtn.dataset.id);
-    if (!p) return;
-    if (p.demo){ toast('示範資料不會被儲存，先加入你自己的貼文'); return; }
+  /* 工單動作 */
+  const oa = e.target.closest('[data-oact]');
+  if (oa){
+    const o = findOrder(oa.dataset.oid); if (!o) return;
+    if (o.demo && oa.dataset.oact !== 'notify' && oa.dataset.oact !== 'quotemsg'){ toast('示範工單不會被儲存，先開一張自己的單'); return; }
+    const raw = store.orders.get(o.id);
+    const act = oa.dataset.oact;
+
+    if (act === 'next'){
+      const nx = OSTATUS[raw.status].next; if (!nx) return;
+      raw.status = nx;
+      if (nx === 'done' && !raw.paid) raw.paid = raw.quote || 0;
+      store.saveOrder(raw); render();
+      toast(nx === 'ready' ? '已轉待取件，記得通知客戶' : '已更新為 '+OSTATUS[nx].label);
+      return;
+    }
+    if (act === 'lost'){ raw.status = 'lost'; store.saveOrder(raw); render(); toast('已標記未成交'); return; }
+    if (act === 'del'){ store.removeOrder(o.id); render(); toast('工單已刪除'); return; }
+    if (act === 'edit'){ orderSheet(o); return; }
+    if (act === 'notify' || act === 'quotemsg'){
+      const slot = oa.closest('.o-body').querySelector('.slot-msg');
+      if (slot.innerHTML){ slot.innerHTML = ''; return; }
+      const text = act === 'notify' ? readyMsg(o) : quoteMsg(o);
+      slot.innerHTML = msgBox(text, o.id);
+      slot.querySelector('.o-note')._text = text;
+      return;
+    }
+  }
+
+  /* 線索狀態 */
+  const ps = e.target.closest('.statusgroup button');
+  if (ps){
+    const p = findPost(ps.dataset.pid); if (!p) return;
+    if (p.demo){ toast('示範線索不會被儲存'); return; }
     const raw = store.posts.get(p.id);
-    raw.status = raw.status === sBtn.dataset.s ? 'new' : sBtn.dataset.s;
-    store.savePost(raw);
-    render();
-    return;
+    raw.status = raw.status === ps.dataset.ps ? 'new' : ps.dataset.ps;
+    store.savePost(raw); render(); return;
   }
 
-  const act = e.target.closest('[data-act]');
-  if (!act) return;
-  const p = findPost(act.dataset.id);
-  const artEl = act.closest('.post');
-  if (!p || !artEl) return;
+  /* 線索動作 */
+  const pa = e.target.closest('[data-pact]');
+  if (pa){
+    const p = findPost(pa.dataset.pid); if (!p) return;
+    const art = pa.closest('.post');
+    const act = pa.dataset.pact;
 
-  if (act.dataset.act === 'expand'){ artEl.classList.toggle('open'); return; }
-
-  if (act.dataset.act === 'why'){
-    const slot = artEl.querySelector('.slot-why');
-    slot.hidden = !slot.hidden;
-    return;
-  }
-
-  if (act.dataset.act === 'del'){
-    store.removePost(p.id); render(); toast('已從看板移除'); return;
-  }
-
-  if (act.dataset.act === 'pitch'){
-    const slot = artEl.querySelector('.slot-pitch');
-    if (slot.innerHTML){ slot.innerHTML = ''; return; }
-    const text = makePitch(p);
-    slot.innerHTML = `<div class="pitch">${esc(text)}<div class="pitch-actions">
-        <button class="btn sm primary" data-act="copy" data-id="${p.id}">複製</button>
-        <button class="btn sm" data-act="pitch2" data-id="${p.id}">換一種說法</button>
-      </div></div>`;
-    slot.dataset.text = text;
-    return;
-  }
-
-  if (act.dataset.act === 'copy'){
-    const slot = artEl.querySelector('.slot-pitch');
-    navigator.clipboard.writeText(slot.dataset.text || '').then(
-      () => toast('話術已複製'),
-      () => toast('複製失敗，請長按選取文字')
-    );
-    return;
-  }
-
-  if (act.dataset.act === 'pitch2'){
-    const slot = artEl.querySelector('.slot-pitch');
-    const device = p.devices[0] || '你的機器';
-    const alt = `看你的描述，${device} 這狀況我遇過不少次。重點是先確認是單一零件還是連帶影響，這會直接決定價差。你可以先拍一張開機畫面跟外觀給我看，我大概就能判斷八成。\n\n我人在中和，${p.regions.length?`${p.regions[0]}過來很方便，`:'外縣市也可以寄修，'}要的話先幫你估，不合再說。`;
-    slot.querySelector('.pitch').firstChild.textContent = alt;
-    slot.dataset.text = alt;
-    return;
+    if (act === 'expand'){ art.classList.toggle('open'); return; }
+    if (act === 'why'){ const s = art.querySelector('.slot-why'); s.hidden = !s.hidden; return; }
+    if (act === 'del'){ store.removePost(p.id); render(); toast('線索已移除'); return; }
+    if (act === 'toorder'){
+      orderSheet({
+        device: p.devices[0] || '',
+        symptom: p.title + (p.body ? '\n' + p.body.slice(0,120) : ''),
+        source: '網路線索',
+        lead_url: p.url && p.url !== '#' ? p.url : '',
+        lead_id: p.demo ? '' : p.id,
+      });
+      return;
+    }
+    if (act === 'pitch'){
+      const slot = art.querySelector('.slot-pitch');
+      if (slot.innerHTML){ slot.innerHTML = ''; return; }
+      const text = makePitch(p);
+      slot.innerHTML = `<div class="pitch">${esc(text)}<div class="pitch-actions">
+        <button class="btn sm primary" data-copy="${p.id}">複製</button></div></div>`;
+      slot.querySelector('.pitch')._text = text;
+      return;
+    }
   }
 });
 
-document.getElementById('q').addEventListener('input', e => { state.q = e.target.value.trim(); render(); });
-document.getElementById('fSource').addEventListener('change', e => { state.source = e.target.value; render(); });
-document.getElementById('fScore').addEventListener('change', e => { state.minScore = +e.target.value; render(); });
-document.getElementById('fTime').addEventListener('change', e => { state.hours = +e.target.value; render(); });
-
-/* ---------- 主題切換 ---------- */
+/* ---------- 主題 ---------- */
 document.getElementById('btnTheme').addEventListener('click', () => {
   const cur = document.documentElement.getAttribute('data-theme');
   const next = cur === 'dark' ? 'light' : cur === 'light' ? '' : 'dark';
@@ -863,7 +962,7 @@ document.getElementById('btnTheme').addEventListener('click', () => {
 (function(){ const t = LS.get('rr_theme',''); if (t) document.documentElement.setAttribute('data-theme', t); })();
 
 /* ============================================================
-   Sheet：新增貼文 / 匯入 / 關鍵字
+   Sheets
    ============================================================ */
 function openSheet(html){
   const bg = document.createElement('div');
@@ -871,137 +970,206 @@ function openSheet(html){
   bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
   bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
   document.body.appendChild(bg);
-  const first = bg.querySelector('input,textarea');
-  if (first) first.focus();
+  const f = bg.querySelector('input,textarea'); if (f) f.focus();
   return bg;
 }
 
-document.getElementById('fabAdd').addEventListener('click', () => {
+/* ---------- 接單 / 編輯工單 ---------- */
+function orderSheet(seed){
+  const editing = seed && seed.id && !seed.demo;
+  const o = Object.assign({
+    customer:'', phone:'', device:'', symptom:'', quote:'', paid:'',
+    source:'現場', status:'intake', note:'', due_h:24, lead_url:'', lead_id:'',
+  }, seed || {});
+  const dueHours = o.due_at ? Math.max(1, Math.round((new Date(o.due_at)-Date.now())/3600000)) : 24;
+
+  const bg = openSheet(`
+    <h2>${editing ? '編輯工單 '+esc(o.no) : '新工單'}</h2>
+    <p class="hint">${editing ? '改完按儲存。' : '客戶站在櫃檯前，先填姓名電話跟機型，其他之後補。'}</p>
+    <div class="row2">
+      <div class="field"><label>客戶姓名</label><input id="f_customer" value="${esc(o.customer)}" placeholder="林小姐"></div>
+      <div class="field"><label>電話</label><input id="f_phone" type="tel" inputmode="numeric" value="${esc(o.phone)}" placeholder="0912345678"></div>
+    </div>
+    <div class="field"><label>機型</label><input id="f_device" value="${esc(o.device)}" placeholder="iPhone 14"></div>
+    <div class="quickpick" style="margin-bottom:11px">${COMMON_DEVICES.map(d=>`<button type="button" data-fill="f_device" data-val="${esc(d)}">${esc(d)}</button>`).join('')}</div>
+    <div class="field"><label>故障狀況</label><textarea id="f_symptom" placeholder="客戶怎麼說的，越具體越好">${esc(o.symptom)}</textarea></div>
+    <div class="quickpick" style="margin-bottom:11px">${COMMON_SYMPTOMS.map(s=>`<button type="button" data-append="f_symptom" data-val="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+    <div class="row3">
+      <div class="field"><label>報價</label><input id="f_quote" type="number" inputmode="numeric" value="${o.quote||''}" placeholder="3800"></div>
+      <div class="field"><label>實收</label><input id="f_paid" type="number" inputmode="numeric" value="${o.paid||''}" placeholder="取件時填"></div>
+      <div class="field"><label>幾小時內完成</label><input id="f_due" type="number" inputmode="numeric" value="${dueHours}"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>來源</label><select id="f_source">
+        ${['現場','電話','LINE','網路線索','回頭客'].map(s=>`<option ${o.source===s?'selected':''}>${s}</option>`).join('')}
+      </select></div>
+      <div class="field"><label>狀態</label><select id="f_status">
+        ${Object.entries(OSTATUS).map(([k,v])=>`<option value="${k}" ${o.status===k?'selected':''}>${v.label}</option>`).join('')}
+      </select></div>
+    </div>
+    <div class="field"><label>備註</label><input id="f_note" value="${esc(o.note)}" placeholder="料件已叫 / 資料優先 / 客戶趕時間"></div>
+    ${o.lead_url?`<div class="field"><label>原始線索</label><input id="f_lead" value="${esc(o.lead_url)}" readonly></div>`:''}
+    <div class="sheet-actions">
+      <button class="btn" data-close>取消</button>
+      <button class="btn primary" id="f_save">${editing?'儲存':'建立工單'}</button>
+    </div>`);
+
+  bg.querySelectorAll('[data-fill]').forEach(b => b.onclick = () => { bg.querySelector('#'+b.dataset.fill).value = b.dataset.val; });
+  bg.querySelectorAll('[data-append]').forEach(b => b.onclick = () => {
+    const ta = bg.querySelector('#'+b.dataset.append);
+    ta.value = ta.value ? ta.value.replace(/\s*$/,'') + '、' + b.dataset.val : b.dataset.val;
+  });
+  bg.querySelector('[data-close]').onclick = () => bg.remove();
+  bg.querySelector('#f_save').onclick = () => {
+    const g = id => (bg.querySelector('#'+id).value || '').trim();
+    if (!g('f_customer') && !g('f_phone')){ toast('至少要有姓名或電話'); return; }
+    const dueH = parseFloat(g('f_due')) || 24;
+    const rec = {
+      id: editing ? o.id : 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+      no: editing ? o.no : store.nextNo(),
+      customer: g('f_customer') || '—',
+      phone: g('f_phone'),
+      device: g('f_device'),
+      symptom: g('f_symptom'),
+      quote: parseInt(g('f_quote'),10) || 0,
+      paid: parseInt(g('f_paid'),10) || 0,
+      source: g('f_source'),
+      status: g('f_status'),
+      note: g('f_note'),
+      lead_url: o.lead_url || '',
+      created_at: editing ? o.created_at : new Date().toISOString(),
+      due_at: new Date(Date.now() + dueH*3600000).toISOString(),
+    };
+    store.saveOrder(rec);
+    if (o.lead_id && store.posts.get(o.lead_id)){
+      const lp = store.posts.get(o.lead_id); lp.status = 'deal'; store.savePost(lp);
+    }
+    bg.remove();
+    state.view = 'orders'; state.oStatus = 'active';
+    render();
+    toast(editing ? '已儲存' : '工單 '+rec.no+' 已建立');
+  };
+}
+
+/* ---------- FAB ---------- */
+document.getElementById('fab').addEventListener('click', () => {
+  if (state.view === 'orders') orderSheet(null);
+  else postSheet();
+});
+
+function postSheet(){
   const bg = openSheet(`
     <h2>貼上一則需求</h2>
     <p class="hint">從 PTT／Dcard／Threads 複製標題與內文貼進來，分數即時算給你看。</p>
     <div class="livescore"><span class="big mono" id="lsNum">0</span><span class="txt" id="lsTxt">還沒有內容</span></div>
     <div class="field"><label>標題</label><input id="nTitle" placeholder="iPhone 14 螢幕摔破，台北求推薦"></div>
     <div class="field"><label>內文</label><textarea id="nBody" placeholder="貼上貼文內容…"></textarea></div>
-    <div class="field"><label>來源與作者</label><div class="row2">
-      <input id="nSource" placeholder="PTT MobileComm" value="PTT MobileComm">
-      <input id="nAuthor" placeholder="作者 ID">
-    </div></div>
+    <div class="row2">
+      <div class="field"><label>來源</label><input id="nSource" value="PTT MobileComm"></div>
+      <div class="field"><label>作者</label><input id="nAuthor" placeholder="作者 ID"></div>
+    </div>
     <div class="field"><label>原文連結（選填）</label><input id="nUrl" placeholder="https://www.ptt.cc/bbs/..."></div>
-    <div class="sheet-actions">
-      <button class="btn" data-close>取消</button>
-      <button class="btn primary" id="nSave">加入看板</button>
-    </div>`);
-
+    <div class="sheet-actions"><button class="btn" data-close>取消</button><button class="btn primary" id="nSave">加入雷達</button></div>`);
+  const v = id => (bg.querySelector('#'+id).value || '').trim();
   const recalc = () => {
-    const draft = {title:v('nTitle'), body:v('nBody'), author:v('nAuthor'), posted_at:new Date().toISOString()};
-    const {score, hits} = scorePost(draft, [...store.posts.values()]);
-    bg.querySelector('#lsNum').textContent = score;
-    bg.querySelector('#lsNum').style.color = score >= 70 ? 'var(--hot)' : score >= 50 ? 'var(--warm)' : 'var(--text-3)';
+    const {score,hits} = scorePost({title:v('nTitle'),body:v('nBody'),author:v('nAuthor'),posted_at:new Date().toISOString()}, [...store.posts.values()]);
+    const n = bg.querySelector('#lsNum');
+    n.textContent = score;
+    n.style.color = score >= 70 ? 'var(--hot)' : score >= 50 ? 'var(--warm)' : 'var(--text-3)';
     const t = threshold();
     bg.querySelector('#lsTxt').innerHTML = hits.length
-      ? `${hits.map(h => esc(h.label)).join('、')}<br>${score >= (t.value===Infinity?101:t.value) ? '<strong>達到 LINE 推播門檻</strong>' : `門檻 ${t.value===Infinity?'—（額度已滿）':t.value} 分`}`
+      ? `${hits.map(h=>esc(h.label)).join('、')}<br>${score >= (t.value===Infinity?101:t.value) ? '<strong>達到 LINE 推播門檻</strong>' : `門檻 ${t.value===Infinity?'—（額度已滿）':t.value} 分`}`
       : '還沒命中任何關鍵字';
   };
-  const v = id => (bg.querySelector('#'+id).value || '').trim();
   ['nTitle','nBody','nAuthor'].forEach(id => bg.querySelector('#'+id).addEventListener('input', recalc));
-
-  bg.querySelector('[data-close]').addEventListener('click', () => bg.remove());
-  bg.querySelector('#nSave').addEventListener('click', () => {
+  bg.querySelector('[data-close]').onclick = () => bg.remove();
+  bg.querySelector('#nSave').onclick = () => {
     if (!v('nTitle') && !v('nBody')){ toast('至少要有標題或內文'); return; }
     store.savePost({
-      id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-      title: v('nTitle') || '(無標題)',
-      body: v('nBody'),
-      source: v('nSource') || '手動新增',
-      author: v('nAuthor') || '—',
-      url: v('nUrl') || '#',
-      posted_at: new Date().toISOString(),
-      status: 'new',
-      created_at: new Date().toISOString(),
+      id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+      title:v('nTitle')||'(無標題)', body:v('nBody'),
+      source:v('nSource')||'手動新增', author:v('nAuthor')||'—',
+      url:v('nUrl')||'#', posted_at:new Date().toISOString(),
+      status:'new', created_at:new Date().toISOString(),
     });
-    bg.remove(); render(); toast('已加入看板');
-  });
-});
+    bg.remove(); render(); toast('已加入雷達');
+  };
+}
 
+/* ---------- 匯入 ---------- */
 document.getElementById('btnImport').addEventListener('click', () => {
   const bg = openSheet(`
     <h2>匯入爬蟲結果</h2>
-    <p class="hint">貼上 JSON 陣列，欄位：title、body、source、url、author、posted_at（ISO 時間）。重複的原文連結會自動略過。</p>
-    <div class="field"><label>JSON</label><textarea id="imp" style="min-height:200px;font-family:'IBM Plex Mono',monospace;font-size:12.5px" placeholder='[{"title":"…","body":"…","source":"PTT MobileComm","url":"https://…","author":"abc","posted_at":"2026-09-04T10:00:00Z"}]'></textarea></div>
+    <p class="hint">貼上 JSON 陣列，欄位：title、body、source、url、author、posted_at。重複的原文連結自動略過。</p>
+    <div class="field"><label>JSON</label><textarea id="imp" style="min-height:190px;font-family:'IBM Plex Mono',monospace;font-size:12.5px" placeholder='[{"title":"…","body":"…","source":"PTT MobileComm","url":"https://…","author":"abc","posted_at":"2026-09-04T10:00:00Z"}]'></textarea></div>
     <div class="field"><label>本月已用 LINE 額度</label><input id="quotaIn" type="number" min="0" max="200" value="${store.settings.line_quota_used||0}"></div>
-    <div class="sheet-actions">
-      <button class="btn" data-close>取消</button>
-      <button class="btn primary" id="impGo">匯入</button>
-    </div>`);
-  bg.querySelector('[data-close]').addEventListener('click', () => bg.remove());
-  bg.querySelector('#impGo').addEventListener('click', () => {
-    const q = parseInt(bg.querySelector('#quotaIn').value, 10);
-    if (!isNaN(q)){ store.settings.line_quota_used = Math.max(0, Math.min(200, q)); store.saveSettings(); }
+    <div class="sheet-actions"><button class="btn" data-close>取消</button><button class="btn primary" id="impGo">匯入</button></div>`);
+  bg.querySelector('[data-close]').onclick = () => bg.remove();
+  bg.querySelector('#impGo').onclick = () => {
+    const q = parseInt(bg.querySelector('#quotaIn').value,10);
+    if (!isNaN(q)){ store.settings.line_quota_used = Math.max(0,Math.min(200,q)); store.saveSettings(); }
     const raw = bg.querySelector('#imp').value.trim();
     if (!raw){ bg.remove(); render(); toast('已更新額度'); return; }
-    let arr;
-    try { arr = JSON.parse(raw); } catch(e){ toast('JSON 格式有誤，請檢查括號與引號'); return; }
+    let arr; try{ arr = JSON.parse(raw); }catch(e){ toast('JSON 格式有誤'); return; }
     if (!Array.isArray(arr)){ toast('最外層必須是陣列 [ ]'); return; }
-    const seen = new Set([...store.posts.values()].map(p => p.url).filter(u => u && u !== '#'));
+    const seen = new Set([...store.posts.values()].map(p=>p.url).filter(u=>u&&u!=='#'));
     let n = 0;
-    arr.forEach(item => {
-      if (!item || (!item.title && !item.body)) return;
-      if (item.url && seen.has(item.url)) return;
+    arr.forEach(it => {
+      if (!it || (!it.title && !it.body)) return;
+      if (it.url && seen.has(it.url)) return;
       store.savePost({
-        id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2,7),
-        title: String(item.title || '(無標題)'),
-        body: String(item.body || ''),
-        source: String(item.source || '未知來源'),
-        author: String(item.author || '—'),
-        url: String(item.url || '#'),
-        posted_at: item.posted_at || new Date().toISOString(),
-        status: 'new',
-        created_at: new Date().toISOString(),
+        id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+        title:String(it.title||'(無標題)'), body:String(it.body||''),
+        source:String(it.source||'未知來源'), author:String(it.author||'—'),
+        url:String(it.url||'#'), posted_at:it.posted_at||new Date().toISOString(),
+        status:'new', created_at:new Date().toISOString(),
       });
-      if (item.url) seen.add(item.url);
-      n++;
+      if (it.url) seen.add(it.url); n++;
     });
-    bg.remove(); render(); toast(`匯入 ${n} 則，略過 ${arr.length-n} 則重複`);
-  });
+    bg.remove(); state.view = 'radar'; render(); toast(`匯入 ${n} 則，略過 ${arr.length-n} 則`);
+  };
 });
 
+/* ---------- 關鍵字 ---------- */
 document.getElementById('btnKw').addEventListener('click', () => {
   const kw = JSON.parse(JSON.stringify(store.keywords()));
-  const groups = Object.entries(kw).map(([key, g]) => `
+  const groups = Object.entries(kw).map(([key,g]) => `
     <div class="kw-group">
-      <div class="kw-head"><span>${esc(g.label)}</span>
-        <span class="w ${g.weight>0?'plus':'minus'}">${g.weight>0?'+':''}${g.weight} 分</span></div>
+      <div class="kw-head"><span>${esc(g.label)}</span><span class="w ${g.weight>0?'plus':'minus'}">${g.weight>0?'+':''}${g.weight} 分</span></div>
       <textarea data-kw="${key}">${esc((g.words||[]).join('、'))}</textarea>
     </div>`).join('');
   const bg = openSheet(`
-    <h2>關鍵字與評分</h2>
-    <p class="hint">用「、」分隔。分數規則沿用原設定：命中該組任一關鍵字即計一次分。另有三條固定規則：60 分鐘內新文 +10、內文少於 20 字 −15、同作者 3 篇以上 −25。</p>
+    <h2>雷達關鍵字</h2>
+    <p class="hint">用「、」分隔。另有三條固定規則：60 分鐘內新文 +10、內文少於 20 字 −15、同作者 3 篇以上 −25。</p>
     ${groups}
     <div class="sheet-actions">
       <button class="btn" id="kwReset">回復預設</button>
       <button class="btn" data-close>取消</button>
       <button class="btn primary" id="kwSave">儲存並重算</button>
     </div>`);
-  bg.querySelector('[data-close]').addEventListener('click', () => bg.remove());
-  bg.querySelector('#kwReset').addEventListener('click', () => {
-    store.settings.keywords = null; store.saveSettings(); bg.remove(); render(); toast('已回復預設關鍵字');
-  });
-  bg.querySelector('#kwSave').addEventListener('click', () => {
-    bg.querySelectorAll('[data-kw]').forEach(ta => {
-      const key = ta.dataset.kw;
-      kw[key].words = ta.value.split(/[、,\n]/).map(s => s.trim()).filter(Boolean);
-    });
+  bg.querySelector('[data-close]').onclick = () => bg.remove();
+  bg.querySelector('#kwReset').onclick = () => { store.settings.keywords = null; store.saveSettings(); bg.remove(); render(); toast('已回復預設'); };
+  bg.querySelector('#kwSave').onclick = () => {
+    bg.querySelectorAll('[data-kw]').forEach(ta => { kw[ta.dataset.kw].words = ta.value.split(/[、,\n]/).map(s=>s.trim()).filter(Boolean); });
     store.settings.keywords = kw; store.saveSettings(); bg.remove(); render(); toast('已更新，分數已重算');
-  });
+  };
 });
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape'){ const bg = document.querySelector('.sheet-bg'); if (bg) bg.remove(); }
 });
 
-/* ---------- 啟動 ---------- */
+/* ============================================================
+   每分鐘自動更新
+   ============================================================ */
+async function tick(){
+  if (document.querySelector('.sheet-bg')) { render(); return; }  // 正在填單就不打斷，只更新周邊
+  await store.pull();
+  render();
+  beat();
+}
 render();
-store.init().then(render);
-setInterval(render, 60000);
+store.init().then(() => { render(); beat(); });
+setInterval(tick, 60000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
 </script>
