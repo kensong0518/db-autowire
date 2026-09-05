@@ -73,6 +73,16 @@ DEFAULT_CONFIG = {
     "telegram_chat_id": "",
     "notify_threshold": 70,
     "port": 8420,
+
+    "_meta說明": ("接自己的粉專與 IG 商業帳號，抓自家的私訊與留言。"
+                  "這是 Meta 官方支援的方式，不是爬別人的社團或 Marketplace——"
+                  "那種做法會讓帳號被停權，本程式不做。留空即關閉。"),
+    "meta_page_token": "",
+    "meta_page_id": "",
+    "meta_ig_user_id": "",
+    "meta_fetch_messages": True,
+    "meta_fetch_comments": True,
+    "meta_lookback_hours": 48,
 }
 
 DEFAULT_KEYWORDS = {
@@ -133,7 +143,7 @@ CREATE TABLE IF NOT EXISTS posts (
   title TEXT, body TEXT, source TEXT, board TEXT,
   author TEXT, url TEXT UNIQUE, posted_at TEXT,
   score INTEGER DEFAULT 0, status TEXT DEFAULT 'new',
-  notified INTEGER DEFAULT 0, created_at TEXT
+  notified INTEGER DEFAULT 0, direct INTEGER DEFAULT 0, created_at TEXT
 );
 CREATE TABLE IF NOT EXISTS orders (
   id TEXT PRIMARY KEY,
@@ -147,7 +157,7 @@ CREATE INDEX IF NOT EXISTS idx_posts_time ON posts(posted_at DESC);
 """
 
 POST_COLS = ["id", "title", "body", "source", "board", "author", "url",
-             "posted_at", "score", "status", "notified", "created_at"]
+             "posted_at", "score", "status", "notified", "direct", "created_at"]
 ORDER_COLS = ["id", "no", "customer", "phone", "device", "symptom", "quote",
               "paid", "source", "status", "note", "lead_url", "created_at", "due_at"]
 
@@ -161,6 +171,11 @@ def db():
 def init_db():
     with db() as conn:
         conn.executescript(SCHEMA)
+        # 舊版資料庫升級：補上後來才加的欄位
+        have = {r["name"] for r in conn.execute("PRAGMA table_info(posts)")}
+        if "direct" not in have:
+            conn.execute("ALTER TABLE posts ADD COLUMN direct INTEGER DEFAULT 0")
+            log("資料庫已升級：posts 新增 direct 欄位")
 
 
 def get_setting(conn, key, default=None):
@@ -338,6 +353,161 @@ def crawl_ptt_board(board, pages, known_urls, delay=0.4):
     return out
 
 
+
+# ============================================================
+# Meta 連接器：自己的粉專與 IG 商業帳號
+# ------------------------------------------------------------
+# 只讀取「你自己擁有的」粉專／IG 帳號的私訊與留言，走 Meta 官方
+# Graph API。不登入他人帳號、不碰社團、不碰 Marketplace——那些做法
+# 違反使用條款且會導致帳號停權。
+# ============================================================
+GRAPH = "https://graph.facebook.com/v21.0"
+
+
+def graph_get(path, token, params=None):
+    q = dict(params or {})
+    q["access_token"] = token
+    url = "%s/%s?%s" % (GRAPH, path.lstrip("/"), urllib.parse.urlencode(q))
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=20,
+                                    context=ssl.create_default_context()) as r:
+            return json.loads(r.read().decode("utf-8", errors="replace"))
+    except urllib.error.HTTPError as e:
+        detail = e.read().decode("utf-8", errors="replace")[:300]
+        raise RuntimeError("Graph API %s：%s" % (e.code, detail))
+
+
+def meta_time(s):
+    """Graph API 時間格式：2026-09-05T10:00:00+0000"""
+    if not s:
+        return None
+    try:
+        cleaned = re.sub(r"([+-]\d{2})(\d{2})$", r"\1:\2", s)
+        return datetime.fromisoformat(cleaned).astimezone(TPE).isoformat()
+    except Exception:
+        return None
+
+
+def _within(iso, hours):
+    age = age_minutes(iso)
+    return age is None or age <= hours * 60
+
+
+def _lead(kind, ident, author, text, url, posted_at, direct):
+    text = re.sub(r"\s+", " ", text or "").strip()
+    return {
+        "id": "meta_%s" % ident,
+        "title": text[:40] + ("…" if len(text) > 40 else ""),
+        "body": text,
+        "source": kind,
+        "board": "meta",
+        "author": author or "（未提供名稱）",
+        "url": url or "",
+        "posted_at": posted_at or datetime.now(TPE).isoformat(),
+        "direct": 1 if direct else 0,
+    }
+
+
+def crawl_meta_messages(cfg, known, out):
+    """粉專與 IG 的私訊。收件匣裡的訊息本來就是找上門的客人。"""
+    token, page = cfg["meta_page_token"], cfg.get("meta_page_id")
+    hours = int(cfg.get("meta_lookback_hours", 48))
+    if not page:
+        return
+    for platform, label in (("messenger", "FB 私訊"), ("instagram", "IG 私訊")):
+        try:
+            convos = graph_get("%s/conversations" % page, token, {
+                "platform": platform, "fields": "id,updated_time", "limit": 25})
+        except Exception as e:
+            log("  %s 讀取失敗：%s" % (label, e))
+            continue
+        for c in convos.get("data", []):
+            if not _within(meta_time(c.get("updated_time")), hours):
+                continue
+            try:
+                msgs = graph_get("%s/messages" % c["id"], token, {
+                    "fields": "id,message,created_time,from", "limit": 15})
+            except Exception as e:
+                log("  %s 對話讀取失敗：%s" % (label, e))
+                continue
+            for m in msgs.get("data", []):
+                sender = (m.get("from") or {}).get("id", "")
+                # 略過自己回的訊息
+                if sender and page and str(sender) == str(page):
+                    continue
+                text = m.get("message")
+                posted = meta_time(m.get("created_time"))
+                if not text or not _within(posted, hours):
+                    continue
+                if "meta_%s" % m["id"] in known:
+                    continue
+                out.append(_lead(label, m["id"],
+                                 (m.get("from") or {}).get("name"), text,
+                                 "https://business.facebook.com/latest/inbox",
+                                 posted, direct=True))
+                known.add("meta_%s" % m["id"])
+
+
+def crawl_meta_comments(cfg, known, out):
+    """粉專貼文與 IG 貼文底下的留言。"""
+    token = cfg["meta_page_token"]
+    hours = int(cfg.get("meta_lookback_hours", 48))
+
+    targets = []
+    if cfg.get("meta_page_id"):
+        targets.append(("FB 留言", "%s/feed" % cfg["meta_page_id"],
+                        "id,permalink_url,created_time"))
+    if cfg.get("meta_ig_user_id"):
+        targets.append(("IG 留言", "%s/media" % cfg["meta_ig_user_id"],
+                        "id,permalink,timestamp"))
+
+    for label, path, fields in targets:
+        try:
+            items = graph_get(path, token, {"fields": fields, "limit": 15})
+        except Exception as e:
+            log("  %s 讀取失敗：%s" % (label, e))
+            continue
+        for item in items.get("data", []):
+            when = meta_time(item.get("created_time") or item.get("timestamp"))
+            if not _within(when, hours * 4):     # 舊貼文也可能有新留言
+                continue
+            link = item.get("permalink_url") or item.get("permalink") or ""
+            try:
+                comments = graph_get("%s/comments" % item["id"], token, {
+                    "fields": "id,text,message,username,from,timestamp,created_time",
+                    "limit": 30})
+            except Exception as e:
+                log("  %s 留言讀取失敗：%s" % (label, e))
+                continue
+            for c in comments.get("data", []):
+                text = c.get("message") or c.get("text")
+                posted = meta_time(c.get("created_time") or c.get("timestamp"))
+                if not text or not _within(posted, hours):
+                    continue
+                if "meta_%s" % c["id"] in known:
+                    continue
+                author = c.get("username") or (c.get("from") or {}).get("name")
+                out.append(_lead(label, c["id"], author, text, link,
+                                 posted, direct=False))
+                known.add("meta_%s" % c["id"])
+
+
+def crawl_meta(cfg, known):
+    """回傳粉專／IG 的新線索。整段失敗只記錄，不影響 PTT。"""
+    if not cfg.get("meta_page_token"):
+        return []
+    out = []
+    try:
+        if cfg.get("meta_fetch_messages", True):
+            crawl_meta_messages(cfg, known, out)
+        if cfg.get("meta_fetch_comments", True):
+            crawl_meta_comments(cfg, known, out)
+    except Exception as e:
+        log("  Meta 連接器整段失敗，略過：%s" % e)
+    return out
+
+
 # ============================================================
 # 通知
 # ============================================================
@@ -355,9 +525,9 @@ def format_notification(post, score):
     body = re.sub(r"\s+", " ", post.get("body") or "")[:90]
     age = age_minutes(post.get("posted_at"))
     when = "%d 分鐘前" % int(age) if age is not None and age < 1440 else "稍早"
-    return ("🔧 新維修需求（%d 分）\n\n"
-            "【%s】\n來源：%s\n時間：%s\n摘要：%s…\n\n👉 原文：%s"
-            % (score, post.get("title", ""), post.get("source", ""),
+    head = "📩 有人私訊你" if post.get("direct") else "🔧 新維修需求（%d 分）" % score
+    return ("%s\n\n【%s】\n來源：%s\n時間：%s\n摘要：%s…\n\n👉 %s"
+            % (head, post.get("title", ""), post.get("source", ""),
                when, body, post.get("url", "")))
 
 
@@ -419,6 +589,15 @@ def run_crawl(cfg, keywords):
         except Exception as e:
             log("  %s 整版失敗，略過：%s" % (board, e))
 
+    if cfg.get("meta_page_token"):
+        with db() as conn:
+            known_ids = {r["id"] for r in conn.execute("SELECT id FROM posts")}
+        meta_leads = crawl_meta(cfg, known_ids)
+        if meta_leads:
+            log("  粉專／IG：新增 %d 則（其中私訊 %d 則）"
+                % (len(meta_leads), sum(x["direct"] for x in meta_leads)))
+        fresh.extend(meta_leads)
+
     notified = 0
     with LOCK, db() as conn:
         used = int(get_setting(conn, "line_quota_used", 0) or 0)
@@ -434,6 +613,7 @@ def run_crawl(cfg, keywords):
             p["score"] = score
             p["status"] = "new"
             p["notified"] = 0
+            p.setdefault("direct", 0)
             p["created_at"] = datetime.now(TPE).isoformat()
             upsert(conn, "posts", POST_COLS, p)
 
@@ -442,7 +622,8 @@ def run_crawl(cfg, keywords):
             send_telegram(cfg, text)
 
             thr = effective_threshold(used, base, quota)
-            if thr is not None and score >= thr:
+            # 自家粉專／IG 的私訊是找上門的客人，不受分數門檻擋
+            if thr is not None and (score >= thr or p.get("direct")):
                 ok, err = send_line(cfg, text)
                 if ok:
                     used += 1
@@ -608,6 +789,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         settings["notify_threshold"] = Handler.cfg.get("notify_threshold", 70)
         settings["line_ready"] = bool(Handler.cfg.get("line_channel_token"))
         settings["telegram_ready"] = bool(Handler.cfg.get("telegram_bot_token"))
+        settings["meta_ready"] = bool(Handler.cfg.get("meta_page_token"))
+        settings["meta_page_ready"] = bool(Handler.cfg.get("meta_page_id"))
+        settings["meta_ig_ready"] = bool(Handler.cfg.get("meta_ig_user_id"))
         settings["crawl_interval_minutes"] = Handler.cfg.get("crawl_interval_minutes", 10)
         settings["boards"] = Handler.cfg.get("ptt_boards", [])
         return {"posts": posts, "orders": orders,

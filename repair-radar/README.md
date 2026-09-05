@@ -42,7 +42,13 @@
 
 ### 需求雷達（網路線索）
 
-爬蟲每 10 分鐘掃一次 PTT，把「有人在找維修」的貼文抓進來評分。
+爬蟲每 10 分鐘掃一次，把「有人在找維修」的訊息抓進來評分。來源有兩類：
+
+- **PTT 公開看板** — 不需要登入任何帳號
+- **你自己的 FB 粉專與 IG 商業帳號** — 私訊與貼文留言（選配，見第四節）
+
+**私訊不套用分數門檻。** 客人主動私訊你就是找上門的單，一律排在「現在該回」
+最前面、直接推播，卡片上顯示 📩 而不是分數。留言則跟 PTT 一樣照分數排序。
 
 - 0~100 分，每則可展開「分數怎麼算」看命中哪些關鍵字
 - ≥ 70 分推 LINE，全部推 Telegram（設定見下）
@@ -94,7 +100,54 @@
 
 ---
 
-## 四、常見狀況
+## 四、接上粉專與 IG（選配）
+
+抓的是**你自己擁有的**粉專與 IG 商業帳號的私訊和留言，走 Meta 官方 Graph API。
+
+> **不會做的事：** 不登入他人帳號、不抓社團、不抓 Marketplace、不抓別人的貼文。
+> 那些需要違反 Meta 使用條款的做法，會導致帳號連同你的粉專一起被停權，撐不過幾週。
+> 這裡只讀取你自己有權限的資料。
+
+### 需要什麼
+
+1. 一個**Facebook 粉絲專頁**（你是管理員）
+2. IG 也要抓的話：IG 帳號轉成**商業帳號**並連結到那個粉專
+
+### 取得 token（約 15 分鐘）
+
+1. 到 <https://developers.facebook.com/apps/> 建立應用程式，類型選「企業」
+2. 加入產品 **Messenger** 與 **Instagram**，把你的粉專連上去
+3. 打開 <https://developers.facebook.com/tools/explorer/>（Graph API 測試工具）
+4. 右上選你的應用程式，權限勾選：
+   `pages_show_list`、`pages_read_engagement`、`pages_messaging`、
+   `pages_manage_metadata`、`instagram_basic`、`instagram_manage_comments`、
+   `instagram_manage_messages`
+5. 按 **Generate Access Token** 並在彈窗中授權你的粉專
+6. 查詢 `me/accounts` → 找到你的粉專，`id` 填進 `meta_page_id`，
+   `access_token` 填進 `meta_page_token`
+7. 要抓 IG 的話，查詢 `<粉專id>?fields=instagram_business_account`
+   → 取得的 id 填進 `meta_ig_user_id`
+
+填完存檔，**重新啟動程式**。網頁「需求雷達」分頁按「來源」可確認有沒有接上。
+
+### token 會過期
+
+測試工具給的短期 token 大約一小時失效。要長期跑，用這個換成長期 token：
+
+```
+https://graph.facebook.com/v21.0/oauth/access_token
+  ?grant_type=fb_exchange_token
+  &client_id=<你的應用程式ID>
+  &client_secret=<你的應用程式密鑰>
+  &fb_exchange_token=<短期token>
+```
+
+換到的粉專 token 通常不會過期。若某天視窗開始印
+`Graph API 190`，就是 token 失效了，重跑一次上面的步驟。
+
+---
+
+## 五、常見狀況
 
 | 狀況 | 處理 |
 |---|---|
@@ -106,11 +159,14 @@
 | 想改關鍵字 | 網頁右上「關鍵字」，或直接編輯 `keywords.json` |
 | 手機也想看 | 同一個 Wi-Fi 下，把 `repair_radar.py` 裡的 `127.0.0.1` 改成 `0.0.0.0`，手機開 `http://<電腦IP>:8420` |
 | 資料在哪 | 同資料夾的 `data.db`（SQLite）。備份就複製這個檔案 |
+| 粉專／IG 沒抓到東西 | 看視窗有沒有印 `Graph API` 錯誤。190 = token 失效、200 = 權限不足 |
+| 只想抓私訊不要留言 | `config.json` 把 `meta_fetch_comments` 改成 `false` |
+| 想抓更久以前的訊息 | 調大 `meta_lookback_hours`（預設 48 小時） |
 | 沒有 Python 也想用 | 開 `web/維修接單台-單檔版.html`，接單功能完整，但**沒有爬蟲**，資料只存在該瀏覽器 |
 
 ---
 
-## 五、檔案說明
+## 六、檔案說明
 
 ```
 repair-radar/
@@ -122,7 +178,9 @@ repair-radar/
 ├── web/
 │   ├── index.html              看板（由伺服器提供）
 │   └── 維修接單台-單檔版.html   免 Python 版，無爬蟲
-├── tests/test_scorer.py        單元測試
+├── tests/
+│   ├── test_scorer.py          評分與 PTT 解析測試
+│   └── test_meta.py            粉專／IG 連接器測試
 └── data.db                     資料（啟動後自動產生）
 ```
 
@@ -130,15 +188,19 @@ repair-radar/
 
 ---
 
-## 六、已知限制，先講清楚
+## 七、已知限制，先講清楚
 
 1. **PTT 的抓取尚未在真實網路環境驗證。** 開發環境的網路政策擋掉 `www.ptt.cc`，
    解析邏輯是照 PTT 實際 HTML 結構寫並用固定樣本測過，但真實連線請你自己跑一次
    `python3 repair_radar.py --once` 確認。抓不到會在視窗印出錯誤，不會讓程式掛掉。
-2. **只做 PTT。** Dcard 有 Cloudflare 防護、Threads 沒有公開搜尋 API，
-   兩者都不在這版裡，也不會去繞過任何防護。
-3. **沒爬 Facebook**，這是刻意的決定，不會改。
-4. **資料存在這台電腦。** 換一台電腦看不到同一份單，除非複製 `data.db` 過去，
+2. **粉專／IG 的真實連線也未驗證。** 同樣被網路政策擋住（`graph.facebook.com`），
+   而且需要真實的粉專 token。解析、去重、過濾與錯誤處理有 12 項測試覆蓋，
+   但實際欄位是否如預期要你接上自己的帳號才知道。
+3. **Dcard 與 Threads 沒做。** Dcard 有 Cloudflare 防護、Threads 沒有公開搜尋 API，
+   不會去繞過任何防護。
+4. **FB 社團與 Marketplace 不會做。** 那需要登入他人身分或規避 Meta 的限制，
+   代價是帳號連同粉專一起被停權。這不是保守，是那條路真的會壞。
+5. **資料存在這台電腦。** 換一台電腦看不到同一份單，除非複製 `data.db` 過去，
    或用區網共用（見上表）。
-5. **成效未知。** PTT 上「新北求推薦手機維修」這類貼文一天到底有幾則，
+6. **成效未知。** PTT 上「新北求推薦手機維修」這類貼文一天到底有幾則，
    還沒有實測數字。建議先跑三天看撈到幾則有效需求，再決定值不值得繼續投入。

@@ -398,7 +398,7 @@ const LS = {
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
 };
 
-const API = { on:false, lastCrawl:null, lastNew:0, boards:[], interval:10, lineReady:false, tgReady:false };
+const API = { on:false, lastCrawl:null, lastNew:0, boards:[], interval:10, lineReady:false, tgReady:false, metaReady:false, fbReady:false, igReady:false };
 
 async function apiGet(path){
   const r = await fetch(path, {cache:'no-store'});
@@ -461,6 +461,9 @@ const store = {
     API.interval = st.crawl_interval_minutes || 10;
     API.lineReady = !!st.line_ready;
     API.tgReady = !!st.telegram_ready;
+    API.metaReady = !!st.meta_ready;
+    API.fbReady = !!st.meta_page_ready;
+    API.igReady = !!st.meta_ig_ready;
     this.stamp();
   },
 
@@ -655,7 +658,7 @@ function render(){
   renderSync();
   document.getElementById('tabOrders').textContent = orders.filter(o => !['done','lost'].includes(o.status)).length;
   const t = threshold().value === Infinity ? 70 : threshold().value;
-  document.getElementById('tabRadar').textContent = posts.filter(p => p.status === 'new' && p.score >= t).length;
+  document.getElementById('tabRadar').textContent = posts.filter(p => p.status === 'new' && (p.direct || p.score >= t)).length;
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === state.view)));
   document.getElementById('fab').textContent = state.view === 'orders' ? '＋ 接單' : '＋ 貼上需求';
 
@@ -793,7 +796,7 @@ function renderRadarView(posts){
   const t = threshold();
   const used = store.settings.line_quota_used || 0;
   const tv = t.value === Infinity ? 70 : t.value;
-  const hot = posts.filter(p => p.status === 'new' && p.score >= tv).length;
+  const hot = posts.filter(p => p.status === 'new' && (p.direct || p.score >= tv)).length;
   const today = posts.filter(p => new Date(p.posted_at).toDateString() === new Date().toDateString()).length;
   const contacted = posts.filter(p => p.status !== 'new').length;
   const deals = posts.filter(p => p.status === 'deal').length;
@@ -802,9 +805,16 @@ function renderRadarView(posts){
 
   const msgs = [];
   if (API.on){
-    msgs.push(`<div class="notice"><span>◆</span><div><strong>爬蟲執行中。</strong>每 ${API.interval} 分鐘掃一次 ${esc(API.boards.join('、')||'PTT')}，上一輪新增 ${API.lastNew} 則。
+    const src2 = ['PTT ' + (API.boards.join('、')||'—')];
+    if (API.fbReady) src2.push('FB 粉專私訊與留言');
+    if (API.igReady) src2.push('IG 私訊與留言');
+    msgs.push(`<div class="notice"><span>◆</span><div><strong>每 ${API.interval} 分鐘掃一次：</strong>${esc(src2.join('｜'))}。上一輪新增 ${API.lastNew} 則。
       推播：LINE ${API.lineReady?'已設定':'未設定'}、Telegram ${API.tgReady?'已設定':'未設定'}。
-      <button class="btn sm" id="crawlNow" style="margin-top:6px">立即抓取一次</button></div></div>`);
+      ${API.metaReady ? '' : '<br>粉專／IG 尚未連接，按「來源」看怎麼接。'}
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="btn sm" id="crawlNow">立即抓取一次</button>
+        <button class="btn sm" id="srcHelp">來源</button>
+      </div></div></div>`);
   }
   if (usingDemoPosts && !API.on) msgs.push(`<div class="notice"><span>◆</span><div><strong>目前是示範線索。</strong>用右上「匯入」貼上爬蟲產出的 JSON，或按右下手動貼一則。</div></div>`);
   else if (usingDemoPosts && API.on) msgs.push(`<div class="notice"><span>◆</span><div><strong>爬蟲還沒撈到符合的貼文。</strong>下面是示範線索，等第一批真實資料進來就會換掉。</div></div>`);
@@ -838,6 +848,8 @@ function renderRadarView(posts){
       <button class="chip" data-pdevice="" aria-pressed="${state.pDevice===''}">不分類型</button>
       ${[...devs,...issues].map(v=>`<button class="chip" data-pdevice="${esc(v)}" aria-pressed="${state.pDevice===v}">${esc(v)}</button>`).join('')}</div>`:''}`;
   bindSearch();
+  const sh = document.getElementById('srcHelp');
+  if (sh) sh.onclick = sourceSheet;
   const cn = document.getElementById('crawlNow');
   if (cn) cn.onclick = () => {
     cn.disabled = true; cn.textContent = '抓取中…';
@@ -862,11 +874,12 @@ function renderRadarView(posts){
   const board = document.getElementById('board');
   if (!shown.length){ board.innerHTML = `<div class="empty" style="margin-top:20px">這個篩選條件下沒有線索。</div>`; }
   else {
-    const act = shown.filter(p => p.status === 'new' && p.score >= tv);
-    const rest = shown.filter(p => p.status === 'new' && p.score < tv);
+    const act = shown.filter(p => p.status === 'new' && (p.direct || p.score >= tv));
+    const rest = shown.filter(p => p.status === 'new' && !p.direct && p.score < tv);
     const handled = shown.filter(p => p.status !== 'new');
     let html = '';
-    if (act.length) html += section('現在該回', act.length, act.map(postCard).join(''));
+    const dm = act.filter(p => p.direct).length;
+    if (act.length) html += section(dm ? `現在該回（${dm} 則私訊）` : '現在該回', act.length, act.map(postCard).join(''));
     if (rest.length) html += section('其餘需求', rest.length, rest.map(postCard).join(''));
     if (handled.length) html += section('已處理', handled.length, handled.map(postCard).join(''));
     board.innerHTML = html;
@@ -881,7 +894,7 @@ function renderRadarView(posts){
 
 function postCard(p){
   const tv = threshold().value === Infinity ? 70 : threshold().value;
-  const tier = p.score >= tv ? 'hot' : p.score >= 50 ? 'warm' : p.score >= 30 ? 'cool' : 'cold';
+  const tier = (p.direct || p.score >= tv) ? 'hot' : p.score >= 50 ? 'warm' : p.score >= 30 ? 'cool' : 'cold';
   const tags = [
     ...p.devices.map(d=>`<span class="tag device">${esc(d)}</span>`),
     ...p.issues.map(i=>`<span class="tag issue">${esc(i)}</span>`),
@@ -891,7 +904,9 @@ function postCard(p){
   const bd = p.hits.map(h => `<div><b>${esc(h.label)}</b> <span class="${h.weight>0?'plus':'minus'}">${h.weight>0?'+':''}${h.weight}</span>${h.detail?` <span style="opacity:.7">${esc(h.detail)}</span>`:''}</div>`).join('') || '<div>沒有命中任何關鍵字</div>';
   return `
   <article class="post tier-${tier} ${p.status!=='new'?'done':''}" data-pid="${p.id}">
-    <div class="spine"><span class="score mono">${p.score}</span><span class="lbl">分</span>${tier==='hot'&&p.status==='new'?'<span class="dot"></span>':''}</div>
+    <div class="spine">${p.direct
+      ? '<span class="score" style="font-size:15px">📩</span><span class="lbl">私訊</span>'
+      : `<span class="score mono">${p.score}</span><span class="lbl">分</span>`}${tier==='hot'&&p.status==='new'?'<span class="dot"></span>':''}</div>
     <div class="pbody">
       <div class="meta"><span class="src">${esc(p.source)}</span><span class="sep">·</span><span>${esc(p.author||'—')}</span><span class="sep">·</span><span>${relTime(p.posted_at)}</span></div>
       <h3>${p.url&&p.url!=='#'?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>`:esc(p.title)}</h3>
@@ -1171,6 +1186,33 @@ function postSheet(){
     });
     bg.remove(); render(); toast('已加入雷達');
   };
+}
+
+/* ---------- 來源設定說明 ---------- */
+function row(on, name, desc){
+  return `<div style="display:flex;gap:9px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line-soft)">
+    <span style="color:${on?'var(--good)':'var(--text-3)'};font-size:15px;line-height:1.5">${on?'●':'○'}</span>
+    <div><div style="font-weight:600;font-size:14px">${name}<span style="font-weight:400;color:${on?'var(--good)':'var(--text-3)'};font-size:12px;margin-left:7px">${on?'已連接':'未連接'}</span></div>
+    <div style="font-size:12.5px;color:var(--text-2);line-height:1.6">${desc}</div></div></div>`;
+}
+function sourceSheet(){
+  const bg = openSheet(`
+    <h2>資料來源</h2>
+    <p class="hint">改完 config.json 要重新啟動程式才會生效。</p>
+    ${row(API.on, 'PTT', `公開看板，不需要登入任何帳號。目前監控 ${esc(API.boards.join('、')||'—')}，在 config.json 的 ptt_boards 可增減。`)}
+    ${row(API.fbReady, 'Facebook 粉絲專頁', '抓你自己粉專的私訊與貼文留言。需要在 config.json 填 meta_page_token 與 meta_page_id，申請步驟見 README。')}
+    ${row(API.igReady, 'Instagram 商業帳號', '抓你自己 IG 的私訊與貼文留言。IG 帳號要先轉成商業帳號並連結粉專，再填 meta_ig_user_id。')}
+    <div class="notice" style="margin:14px 0 0"><span>◆</span><div>
+      <strong>社團、Marketplace 與別人的貼文不會抓。</strong>那需要登入他人身分或繞過 Meta 的限制，
+      會導致帳號連同你的粉專一起被停權。這裡走的是 Meta 官方 API，只讀取你自己擁有的帳號。
+    </div></div>
+    <div style="font-size:12.5px;color:var(--text-2);line-height:1.8;margin-top:12px">
+      <strong>私訊為什麼優先？</strong><br>
+      粉專和 IG 的私訊是客人主動找上門，不套用分數門檻，一律排在「現在該回」最前面並直接推播通知。
+      貼文留言則跟 PTT 一樣照分數排序。
+    </div>
+    <div class="sheet-actions"><button class="btn primary" data-close>知道了</button></div>`);
+  bg.querySelector('[data-close]').onclick = () => bg.remove();
 }
 
 /* ---------- 匯入 ---------- */
