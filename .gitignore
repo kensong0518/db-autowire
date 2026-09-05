@@ -1,2 +1,6 @@
-﻿__pycache__/
+.DS_Store
+__pycache__/
 *.pyc
+
+# 建置產物：用 ./build_zip.sh 重新產生
+維修接單台.zip
