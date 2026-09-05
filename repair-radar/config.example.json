@@ -1,0 +1,13 @@
+{
+  "_說明": "填好 token 後這個檔案就有你的金鑰，不要傳給別人也不要上傳 GitHub。留空代表關閉該功能。",
+  "ptt_boards": ["MobileComm", "iOS", "Android", "nb-shopping"],
+  "ptt_pages": 2,
+  "crawl_interval_minutes": 10,
+  "line_channel_token": "",
+  "line_user_id": "",
+  "line_monthly_quota": 200,
+  "telegram_bot_token": "",
+  "telegram_chat_id": "",
+  "notify_threshold": 70,
+  "port": 8420
+}

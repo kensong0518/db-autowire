@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0b1113">
-<meta name="description" content="店面維修接單工單流程 + 網路維修需求雷達">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
 <style>img{max-width:100%}[hidden]{display:none!important}</style>
 <title>維修接單雷達</title>
@@ -318,7 +317,7 @@ const COMMON_SYMPTOMS = ['螢幕破裂','電池老化','進水','充電孔接觸
 
 /* ---------- 雷達關鍵字 ---------- */
 const DEFAULT_KEYWORDS = {
-  intent: {label:'求助意圖', weight:30, words:['求推薦','有推薦嗎','推薦嗎','求救','求助','哪裡修','哪邊修','該修還是換','有人知道','跪求','請問有','怎麼辦']},
+  intent: {label:'求助意圖', weight:30, words:['求推薦','有推薦嗎','推薦嗎','有沒有推薦','有推薦','推薦的','有人推薦','板友推薦','求救','求助','哪裡修','哪邊修','去哪修','該修還是換','有人知道','跪求','請問有','想問','請問','求問','怎麼辦','怎麼處理']},
   fault:  {label:'故障描述', weight:25, words:['螢幕破','螢幕裂','螢幕摔','摔到','摔破','進水','泡水','開不了機','無法開機','充不了電','不能充電','電池膨脹','耗電快','鏡頭裂','面板','觸控失靈','失靈','主機板','黑屏','沒畫面','尾插','充電孔']},
   device: {label:'裝置型號', weight:15, words:['iPhone','iPad','Android','Samsung','三星','Pixel','Switch','MacBook','筆電','平板','華碩','ASUS','小米','OPPO','Sony','ROG','紅米','vivo','realme']},
   repair: {label:'維修字眼', weight:15, words:['維修','修理','送修','報價','價格','多少錢','估價','換螢幕','換電池']},
@@ -399,24 +398,45 @@ const LS = {
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
 };
 
+const API = { on:false, lastCrawl:null, lastNew:0, boards:[], interval:10, lineReady:false, tgReady:false };
+
+async function apiGet(path){
+  const r = await fetch(path, {cache:'no-store'});
+  if (!r.ok) throw new Error('HTTP '+r.status);
+  return r.json();
+}
+function apiPost(path, body){
+  return fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)}).catch(()=>{});
+}
+
 const store = {
   db:null, ready:false,
   orders:new Map(), posts:new Map(),
-  settings:{ line_quota_used:0, quota_month:monthKey(), keywords:null, seq:{} },
+  settings:{ line_quota_used:0, quota_month:monthKey(), keywords:null },
   lastSync:null,
 
   async init(){
+    /* 1) 本機伺服器模式（repair_radar.py 啟動時） */
+    try{
+      const s = await apiGet('/api/state');
+      API.on = true;
+      this.applyState(s);
+      this.ready = true; this.stamp();
+      return;
+    }catch(e){ API.on = false; }
+
+    /* 2) Claude Artifact 雲端模式 */
     try{
       if (window.claude && typeof window.claude.use === 'function') this.db = await window.claude.use('db');
     }catch(e){ this.db = null; }
-
     if (this.db){
       try{
         await this.pull();
-        this.db.collection('orders').onSnapshot(list => { this.absorb(list, this.orders); this.stamp(); render(); });
-        this.db.collection('posts').onSnapshot(list => { this.absorb(list, this.posts); this.stamp(); render(); });
+        this.db.collection('orders').onSnapshot(l => { this.absorb(l, this.orders); this.stamp(); render(); });
+        this.db.collection('posts').onSnapshot(l => { this.absorb(l, this.posts); this.stamp(); render(); });
       }catch(e){ this.db = null; }
     }
+    /* 3) 純瀏覽器模式 */
     if (!this.db){
       LS.get('rr_orders',[]).forEach(o => this.orders.set(o.id,o));
       LS.get('rr_posts',[]).forEach(p => this.posts.set(p.id,p));
@@ -430,13 +450,28 @@ const store = {
     this.ready = true; this.stamp();
   },
 
-  absorb(list, map){
-    (list||[]).forEach(d => { const v = d && d.data ? d.data() : d; if (v && v.id) map.set(v.id, v); });
+  applyState(s){
+    this.orders.clear(); (s.orders||[]).forEach(o => this.orders.set(o.id, o));
+    this.posts.clear();  (s.posts||[]).forEach(p => this.posts.set(p.id, p));
+    const st = s.settings || {};
+    this.settings = Object.assign({}, this.settings, st, {keywords: s.keywords || null});
+    API.lastCrawl = st.last_crawl || null;
+    API.lastNew = st.last_crawl_new || 0;
+    API.boards = st.boards || [];
+    API.interval = st.crawl_interval_minutes || 10;
+    API.lineReady = !!st.line_ready;
+    API.tgReady = !!st.telegram_ready;
+    this.stamp();
   },
 
-  /* 每分鐘自動重讀 */
+  absorb(list, map){ (list||[]).forEach(d => { const v = d && d.data ? d.data() : d; if (v && v.id) map.set(v.id, v); }); },
+
   async pull(){
-    if (!this.db) { this.stamp(); return; }
+    if (API.on){
+      try{ this.applyState(await apiGet('/api/state')); }catch(e){}
+      return;
+    }
+    if (!this.db){ this.stamp(); return; }
     try{
       const [os, ps, cfg] = await Promise.all([
         this.db.collection('orders').limit(500).get(),
@@ -448,35 +483,45 @@ const store = {
       const cv = cfg && (cfg.data ? cfg.data() : cfg);
       if (cv) this.settings = Object.assign(this.settings, cv);
       this.stamp();
-    }catch(e){ /* 保留現有資料，下一輪再試 */ }
+    }catch(e){}
   },
 
   stamp(){ this.lastSync = new Date(); },
 
   saveOrder(o){
     this.orders.set(o.id,o);
-    if (this.db) this.db.doc('orders/'+o.id).set(o).catch(()=>{});
+    if (API.on) apiPost('/api/orders', o);
+    else if (this.db) this.db.doc('orders/'+o.id).set(o).catch(()=>{});
     else LS.set('rr_orders',[...this.orders.values()]);
     this.stamp();
   },
   removeOrder(id){
     this.orders.delete(id);
-    if (this.db) this.db.doc('orders/'+id).delete().catch(()=>{});
+    if (API.on) apiPost('/api/delete', {table:'orders', id});
+    else if (this.db) this.db.doc('orders/'+id).delete().catch(()=>{});
     else LS.set('rr_orders',[...this.orders.values()]);
   },
   savePost(p){
     this.posts.set(p.id,p);
-    if (this.db) this.db.doc('posts/'+p.id).set(p).catch(()=>{});
+    if (API.on) apiPost('/api/posts', p);
+    else if (this.db) this.db.doc('posts/'+p.id).set(p).catch(()=>{});
     else LS.set('rr_posts',[...this.posts.values()]);
   },
   removePost(id){
     this.posts.delete(id);
-    if (this.db) this.db.doc('posts/'+id).delete().catch(()=>{});
+    if (API.on) apiPost('/api/delete', {table:'posts', id});
+    else if (this.db) this.db.doc('posts/'+id).delete().catch(()=>{});
     else LS.set('rr_posts',[...this.posts.values()]);
   },
   saveSettings(){
-    if (this.db) this.db.doc('config/settings').set(this.settings).catch(()=>{});
+    if (API.on) apiPost('/api/settings', {line_quota_used:this.settings.line_quota_used, quota_month:this.settings.quota_month});
+    else if (this.db) this.db.doc('config/settings').set(this.settings).catch(()=>{});
     else LS.set('rr_settings', this.settings);
+  },
+  saveKeywords(kw){
+    this.settings.keywords = kw;
+    if (API.on) apiPost('/api/keywords', kw || {});
+    else this.saveSettings();
   },
   keywords(){ return this.settings.keywords || DEFAULT_KEYWORDS; },
 
@@ -623,7 +668,14 @@ function renderSync(){
   if (!store.lastSync){ el.textContent = '載入中'; return; }
   const hh = String(store.lastSync.getHours()).padStart(2,'0');
   const mm = String(store.lastSync.getMinutes()).padStart(2,'0');
-  el.textContent = (store.db ? '同步 ' : '本機 ') + hh + ':' + mm;
+  const mode = API.on ? '抓取 ' : store.db ? '同步 ' : '本機 ';
+  if (API.on && API.lastCrawl){
+    const d = new Date(API.lastCrawl);
+    el.textContent = mode + String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    el.title = '每 ' + API.interval + ' 分鐘抓一次，上一輪新增 ' + API.lastNew + ' 則';
+  } else {
+    el.textContent = mode + hh + ':' + mm;
+  }
 }
 function beat(){ const s = document.getElementById('sync'); s.classList.remove('beat'); void s.offsetWidth; s.classList.add('beat'); }
 
@@ -696,7 +748,7 @@ function renderOrderView(orders){
 
   document.getElementById('footer').innerHTML = `
     <div>接單流程：待檢測 → 報價中 → 維修中 → 待取件 → 已完成。每張單按綠色按鈕推進下一階段，客戶不修就按「未成交」。</div>
-    <div>畫面每 60 秒自動重讀資料並更新逾期狀態；${store.db ? '工單存在雲端，換手機或平板都看得到同一份。' : '目前存在這台裝置的瀏覽器裡。'}</div>`;
+    <div>畫面每 60 秒自動重讀資料並更新逾期狀態；${API.on ? '工單存在這台電腦的 data.db，同一個區網的其他裝置連得到這台就能共用。' : store.db ? '工單存在雲端，換手機或平板都看得到同一份。' : '目前存在這台裝置的瀏覽器裡。'}</div>`;
 }
 
 function orderCard(o){
@@ -749,7 +801,13 @@ function renderRadarView(posts){
   const cls = left <= 5 ? 'alert' : left <= 20 ? 'warn' : '';
 
   const msgs = [];
-  if (usingDemoPosts) msgs.push(`<div class="notice"><span>◆</span><div><strong>目前是示範線索。</strong>用右上「匯入」貼上爬蟲產出的 JSON，或按右下手動貼一則。</div></div>`);
+  if (API.on){
+    msgs.push(`<div class="notice"><span>◆</span><div><strong>爬蟲執行中。</strong>每 ${API.interval} 分鐘掃一次 ${esc(API.boards.join('、')||'PTT')}，上一輪新增 ${API.lastNew} 則。
+      推播：LINE ${API.lineReady?'已設定':'未設定'}、Telegram ${API.tgReady?'已設定':'未設定'}。
+      <button class="btn sm" id="crawlNow" style="margin-top:6px">立即抓取一次</button></div></div>`);
+  }
+  if (usingDemoPosts && !API.on) msgs.push(`<div class="notice"><span>◆</span><div><strong>目前是示範線索。</strong>用右上「匯入」貼上爬蟲產出的 JSON，或按右下手動貼一則。</div></div>`);
+  else if (usingDemoPosts && API.on) msgs.push(`<div class="notice"><span>◆</span><div><strong>爬蟲還沒撈到符合的貼文。</strong>下面是示範線索，等第一批真實資料進來就會換掉。</div></div>`);
   if (t.mode === 'off') msgs.push(`<div class="notice hot"><span>◆</span><div><strong>本月 LINE 額度已滿（${used}/200）。</strong>推播改走 Telegram，看板照常更新。</div></div>`);
   else if (t.mode === 'tight') msgs.push(`<div class="notice"><span>◆</span><div><strong>LINE 額度剩 ${left} 則。</strong>推播門檻已自動從 70 分提高到 85 分。</div></div>`);
   document.getElementById('notices').innerHTML = msgs.join('');
@@ -780,6 +838,13 @@ function renderRadarView(posts){
       <button class="chip" data-pdevice="" aria-pressed="${state.pDevice===''}">不分類型</button>
       ${[...devs,...issues].map(v=>`<button class="chip" data-pdevice="${esc(v)}" aria-pressed="${state.pDevice===v}">${esc(v)}</button>`).join('')}</div>`:''}`;
   bindSearch();
+  const cn = document.getElementById('crawlNow');
+  if (cn) cn.onclick = () => {
+    cn.disabled = true; cn.textContent = '抓取中…';
+    fetch('/api/crawl-now').then(()=>{ toast('已開始抓取，完成後會自動出現'); })
+      .catch(()=>toast('無法連上本機伺服器'))
+      .finally(()=>setTimeout(()=>{ store.pull().then(render); }, 8000));
+  };
   document.getElementById('fSource').onchange = e => { state.pSource = e.target.value; render(); };
   document.getElementById('fScore').onchange  = e => { state.pMinScore = +e.target.value; render(); };
   document.getElementById('fTime').onchange   = e => { state.pHours = +e.target.value; render(); };
@@ -808,7 +873,9 @@ function renderRadarView(posts){
   }
 
   document.getElementById('footer').innerHTML = `
-    <div>線索由爬蟲層（GitHub Actions）產出後匯入；瀏覽器不能直接連 PTT／Dcard，跨網域會被擋，自動抓取必須跑在伺服器端。</div>
+    <div>${API.on
+      ? '爬蟲由本機的 repair_radar.py 執行，抓到的貼文直接進資料庫；關掉那個視窗爬蟲就停了。'
+      : '線索需由爬蟲層產出後匯入；瀏覽器不能直接連 PTT／Dcard，跨網域會被擋，自動抓取必須跑在伺服器端。'}</div>
     <div>匯入格式：<code>[{title, body, source, url, author, posted_at}]</code>，以 url 去重。談成的線索按「轉成工單」直接進接單流程。</div>`;
 }
 
@@ -1158,10 +1225,10 @@ document.getElementById('btnKw').addEventListener('click', () => {
       <button class="btn primary" id="kwSave">儲存並重算</button>
     </div>`);
   bg.querySelector('[data-close]').onclick = () => bg.remove();
-  bg.querySelector('#kwReset').onclick = () => { store.settings.keywords = null; store.saveSettings(); bg.remove(); render(); toast('已回復預設'); };
+  bg.querySelector('#kwReset').onclick = () => { store.saveKeywords(null); store.settings.keywords = null; setTimeout(()=>store.pull().then(render),300); bg.remove(); render(); toast('已回復預設'); };
   bg.querySelector('#kwSave').onclick = () => {
     bg.querySelectorAll('[data-kw]').forEach(ta => { kw[ta.dataset.kw].words = ta.value.split(/[、,\n]/).map(s=>s.trim()).filter(Boolean); });
-    store.settings.keywords = kw; store.saveSettings(); bg.remove(); render(); toast('已更新，分數已重算');
+    store.saveKeywords(kw); setTimeout(()=>store.pull().then(render),300); bg.remove(); render(); toast('已更新，分數已重算');
   };
 });
 
