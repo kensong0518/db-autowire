@@ -5,22 +5,49 @@
 
 ---
 
-## 一、怎麼啟動（3 步）
+## 一、安裝（雙擊一個檔案就好）
 
-| 系統 | 做法 |
+| 系統 | 雙擊這個 |
 |---|---|
-| Windows | 雙擊 `啟動-Windows.bat` |
-| Mac | 雙擊 `啟動-Mac.command`（第一次可能要在「系統設定 → 隱私權與安全性」按「仍要打開」） |
-| 兩者皆可 | 開終端機，在這個資料夾執行 `python3 repair_radar.py` |
+| Windows | **`安裝-Windows.bat`** |
+| Mac | **`安裝-Mac.command`** |
 
-瀏覽器會自動打開 <http://127.0.0.1:8420>。
-**那個黑色視窗不能關**，關掉爬蟲和網站就停了。
+安裝程式會自動做完這些事：
 
-### 唯一的前提：電腦要有 Python
+1. 檢查電腦有沒有 Python，**沒有的話幫你下載安裝**（Windows；Mac 通常內建）
+2. 把程式裝到系統目錄（Windows: `%LOCALAPPDATA%\RepairRadar`／Mac: `~/Applications/RepairRadar`）
+3. 建立**桌面捷徑**與**開始功能表／Launchpad** 項目
+4. 問你要不要**開機自動啟動**（店裡電腦建議開）
+5. 直接啟動，瀏覽器打開 <http://127.0.0.1:8420>
 
-- **Mac**：系統內建，通常什麼都不用做。
-- **Windows**：多半沒有。到 <https://www.python.org/downloads/> 下載安裝，
-  **安裝時務必勾選 `Add Python to PATH`**，裝完再雙擊一次 bat。
+裝好之後，以後就是雙擊桌面上的「維修接單台」。
+**開起來的黑色／終端機視窗不要關**，關掉程式就停了。
+
+### 第一次打開會跳警告，這是正常的
+
+程式沒有花錢買數位簽章，所以：
+
+- **Windows**：SmartScreen 說「已保護您的電腦」→ 按「**其他資訊**」→「**仍要執行**」
+- **Mac**：說「無法打開，因為來自未識別的開發者」→ 在檔案上**按右鍵 → 打開** → 再按一次「打開」
+
+### 不想安裝，只想試跑
+
+在解壓縮的資料夾直接雙擊 `啟動-Windows.bat` 或 `啟動-Mac.command`，
+程式就在原地跑，不會動到系統任何地方。前提是電腦已經有 Python。
+
+### 移除
+
+執行安裝目錄裡的 `移除.bat`（Windows）或 `移除.command`（Mac）。
+會問你要不要把工單資料留一份到桌面。Python 不會被移除。
+
+### 想要真正的單一 exe（進階）
+
+在 Windows 上雙擊 `build_exe.bat`，會用 PyInstaller 打包成
+`dist\RepairRadar.exe`——那個 exe 拿到任何 Windows 電腦都能跑，
+對方不需要有 Python。需要網路連線，第一次約 2~3 分鐘。
+
+> 這個 exe 我沒辦法先幫你產生：打包必須在 Windows 上執行，
+> 而我這邊是 Linux 環境，不能跨平台編譯。
 
 ---
 
@@ -151,7 +178,9 @@ https://graph.facebook.com/v21.0/oauth/access_token
 
 | 狀況 | 處理 |
 |---|---|
-| 埠號被占用 | `python3 repair_radar.py --port 8421`，或改 `config.json` 的 `port` |
+| 埠號被占用 | 改安裝目錄 `config.json` 的 `port`，例如 8421 |
+| 想關掉開機自動啟動 | Windows：刪掉「開始→啟動」裡的捷徑。Mac：重跑安裝程式選 n |
+| 安裝程式跑不起來 | Windows 在 `安裝-Windows.bat` 上按右鍵→以系統管理員身分執行 |
 | 想手動跑一次爬蟲看結果 | `python3 repair_radar.py --once` |
 | 只要看板不要爬蟲 | `python3 repair_radar.py --no-crawl` |
 | 想換監控的看板 | 改 `config.json` 的 `ptt_boards` |
@@ -170,8 +199,14 @@ https://graph.facebook.com/v21.0/oauth/access_token
 
 ```
 repair-radar/
-├── 啟動-Windows.bat            雙擊啟動（Windows）
-├── 啟動-Mac.command            雙擊啟動（Mac）
+├── 安裝-Windows.bat            ★ 一鍵安裝（Windows）
+├── 安裝-Mac.command            ★ 一鍵安裝（Mac）
+├── build_exe.bat               選配：在 Windows 上打包成單一 exe
+├── 啟動-Windows.bat            免安裝，原地執行
+├── 啟動-Mac.command            免安裝，原地執行
+├── tools/
+│   ├── install.ps1             Windows 安裝邏輯
+│   └── uninstall.ps1           Windows 移除邏輯
 ├── repair_radar.py             主程式：爬蟲 + 評分 + 網頁伺服器 + 推播
 ├── config.example.json         設定範本，第一次啟動會複製成 config.json
 ├── keywords.json               評分關鍵字，可自己加減
@@ -190,6 +225,11 @@ repair-radar/
 
 ## 七、已知限制，先講清楚
 
+0. **Windows 安裝程式未在真實 Windows 上跑過。** 我這邊是 Linux 環境，
+   沒有 Windows 也沒有 PowerShell 可測。Mac 安裝腳本我在沙盒實際跑過並驗證
+   裝完的版本能啟動、26 項測試通過；Windows 版是同一套流程改寫的，
+   語法與編碼檢查過（PowerShell 需要 UTF-8 BOM 才不會中文亂碼，已處理），
+   但第一次跑請留意畫面上的訊息。出錯的話把訊息拍給我。
 1. **PTT 的抓取尚未在真實網路環境驗證。** 開發環境的網路政策擋掉 `www.ptt.cc`，
    解析邏輯是照 PTT 實際 HTML 結構寫並用固定樣本測過，但真實連線請你自己跑一次
    `python3 repair_radar.py --once` 確認。抓不到會在視窗印出錯誤，不會讓程式掛掉。
