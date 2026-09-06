@@ -150,7 +150,8 @@ CREATE TABLE IF NOT EXISTS orders (
   no TEXT, customer TEXT, phone TEXT, device TEXT, symptom TEXT,
   quote INTEGER DEFAULT 0, paid INTEGER DEFAULT 0,
   source TEXT, status TEXT DEFAULT 'intake', note TEXT,
-  lead_url TEXT, created_at TEXT, due_at TEXT
+  lead_url TEXT, created_at TEXT, due_at TEXT,
+  quoted_at TEXT, repair_at TEXT, ready_at TEXT, done_at TEXT
 );
 CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT);
 CREATE INDEX IF NOT EXISTS idx_posts_time ON posts(posted_at DESC);
@@ -159,7 +160,12 @@ CREATE INDEX IF NOT EXISTS idx_posts_time ON posts(posted_at DESC);
 POST_COLS = ["id", "title", "body", "source", "board", "author", "url",
              "posted_at", "score", "status", "notified", "direct", "created_at"]
 ORDER_COLS = ["id", "no", "customer", "phone", "device", "symptom", "quote",
-              "paid", "source", "status", "note", "lead_url", "created_at", "due_at"]
+              "paid", "source", "status", "note", "lead_url", "created_at", "due_at",
+              "quoted_at", "repair_at", "ready_at", "done_at"]
+
+# 各階段完成時自動蓋的時間戳
+STAGE_STAMP = {"quoted": "quoted_at", "repair": "repair_at",
+               "ready": "ready_at", "done": "done_at"}
 
 
 def db():
@@ -176,6 +182,12 @@ def init_db():
         if "direct" not in have:
             conn.execute("ALTER TABLE posts ADD COLUMN direct INTEGER DEFAULT 0")
             log("資料庫已升級：posts 新增 direct 欄位")
+
+        have = {r["name"] for r in conn.execute("PRAGMA table_info(orders)")}
+        for col in ("quoted_at", "repair_at", "ready_at", "done_at"):
+            if col not in have:
+                conn.execute("ALTER TABLE orders ADD COLUMN %s TEXT" % col)
+                log("資料庫已升級：orders 新增 %s 欄位" % col)
 
 
 def get_setting(conn, key, default=None):

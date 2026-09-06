@@ -171,6 +171,28 @@ header.top{
 
 .o-device{font-size:14px;color:var(--text);font-weight:500}
 .o-symptom{font-size:13.5px;color:var(--text-2);margin:0;white-space:pre-wrap}
+.intake-line{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;
+  padding:5px 8px;border-radius:7px;background:var(--surface-2);
+  border-left:2px solid var(--cool);font-size:12.5px;
+}
+.intake-line .il-k{color:var(--text-3);font-size:11px;letter-spacing:.06em}
+.intake-line .il-v{color:var(--text);font-weight:600;font-size:13px;font-variant-numeric:tabular-nums}
+.intake-line .il-rel{color:var(--text-3);font-size:11.5px}
+
+.timeline{
+  display:flex;flex-wrap:wrap;gap:3px 0;border-top:1px solid var(--line-soft);padding-top:7px;
+}
+.tl-item{
+  display:flex;flex-direction:column;gap:1px;padding-right:11px;margin-right:11px;
+  border-right:1px solid var(--line-soft);
+}
+.tl-item:last-child{border-right:0;margin-right:0;padding-right:0}
+.tl-k{font-size:10px;letter-spacing:.08em;color:var(--text-3)}
+.tl-v{font-size:11.5px;color:var(--text-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tl-total .tl-k{color:var(--accent)}
+.tl-total .tl-v{color:var(--accent);font-weight:600}
+
 .o-facts{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--text-3)}
 .o-facts b{color:var(--text-2);font-weight:500;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
 .o-facts .late-txt{color:var(--bad);font-weight:500}
@@ -303,6 +325,9 @@ const OSTATUS = {
   lost:  {label:'未成交', next:null,     nextLabel:''},
 };
 
+/* 推進到各階段時自動蓋的時間欄位 */
+const STAGE_STAMP = {quoted:'quoted_at', repair:'repair_at', ready:'ready_at', done:'done_at'};
+
 const COMMON_DEVICES = ['iPhone 15','iPhone 14','iPhone 13','iPhone 12','iPad','MacBook','Samsung','Pixel','小米','Switch','筆電'];
 const COMMON_SYMPTOMS = ['螢幕破裂','電池老化','進水','充電孔接觸不良','開不了機','鏡頭破裂','觸控失靈','喇叭無聲'];
 
@@ -348,19 +373,23 @@ function hrs(h){ return new Date(Date.now() + h*3600000).toISOString(); }
 const DEMO_ORDERS = [
   {id:'d1', demo:true, no:'R-DEMO-01', customer:'林小姐', phone:'0912345678', device:'iPhone 14',
    symptom:'右上角摔破一條裂痕，觸控正常，畫面完整', status:'ready', quote:3800, paid:0,
-   source:'現場', created_at:mins(300), due_at:mins(30), note:''},
+   source:'現場', created_at:mins(300), due_at:mins(30), note:'',
+   quoted_at:mins(280), repair_at:mins(240), ready_at:mins(50)},
   {id:'d2', demo:true, no:'R-DEMO-02', customer:'王先生', phone:'0922333444', device:'Pixel 7',
    symptom:'泡水後開不了機，已請客戶不要充電。要救裡面照片', status:'repair', quote:2600, paid:0,
-   source:'電話', created_at:mins(120), due_at:hrs(20), note:'資料優先，先報價再動工'},
+   source:'電話', created_at:mins(120), due_at:hrs(20), note:'資料優先，先報價再動工',
+   quoted_at:mins(95), repair_at:mins(80)},
   {id:'d3', demo:true, no:'R-DEMO-03', customer:'陳先生', phone:'0933555666', device:'iPad Pro',
    symptom:'電池膨脹把螢幕頂起來', status:'quoted', quote:2900, paid:0,
-   source:'網路線索', created_at:mins(45), due_at:hrs(48), note:'客戶還在考慮'},
+   source:'網路線索', created_at:mins(45), due_at:hrs(48), note:'客戶還在考慮',
+   quoted_at:mins(20)},
   {id:'d4', demo:true, no:'R-DEMO-04', customer:'黃小姐', phone:'0955777888', device:'iPhone 12',
    symptom:'充電要喬角度，判斷尾插', status:'intake', quote:0, paid:0,
    source:'現場', created_at:mins(12), due_at:hrs(6), note:''},
   {id:'d5', demo:true, no:'R-DEMO-05', customer:'吳先生', phone:'0966888999', device:'Switch',
    symptom:'搖桿飄移，已換左右類比', status:'done', quote:1200, paid:1200,
-   source:'現場', created_at:mins(420), due_at:mins(200), note:''},
+   source:'現場', created_at:mins(420), due_at:mins(200), note:'',
+   quoted_at:mins(400), repair_at:mins(380), ready_at:mins(210), done_at:mins(180)},
 ];
 
 const DEMO_POSTS = [
@@ -593,7 +622,10 @@ function makePitch(p){
 }
 function readyMsg(o){
   const amt = o.quote ? `費用是 ${o.quote} 元，` : '';
-  return `${o.customer}您好，這裡是維修門市。您的 ${o.device} 已經修好可以取件了，${amt}營業時間內隨時過來都可以。單號 ${o.no}，取件時報單號或電話就行。`;
+  const sent = o.created_at ? `${stamp(o.created_at)} 送修的` : '';
+  const took = span(o.created_at, o.ready_at);
+  const dur = took ? `（維修歷時 ${took}）` : '';
+  return `${o.customer}您好，這裡是維修門市。您 ${sent} ${o.device} 已經修好可以取件了${dur}，${amt}營業時間內隨時過來都可以。單號 ${o.no}，取件時報單號或電話就行。`;
 }
 function quoteMsg(o){
   return `${o.customer}您好，您的 ${o.device} 檢測完成了。狀況是${o.symptom || '需要更換零件'}，維修費用 ${o.quote || '（待填）'} 元，含料件與工資，修好保固三個月。方便的話回覆一下要不要進行，我這邊就排進去。`;
@@ -623,6 +655,37 @@ function allPosts(){
   usingDemoPosts = real.length === 0;
   const base = usingDemoPosts ? DEMO_POSTS : real;
   return base.map(p => enrich(p, base)).sort((a,b) => new Date(b.posted_at) - new Date(a.posted_at));
+}
+
+const WK = ['日','一','二','三','四','五','六'];
+/* 9/6（六）14:30 — 跨年才補上年份 */
+function stamp(iso, withYear){
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const y = d.getFullYear() !== new Date().getFullYear() || withYear ? d.getFullYear()+'/' : '';
+  return `${y}${d.getMonth()+1}/${d.getDate()}（${WK[d.getDay()]}）`
+       + `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+/* datetime-local 欄位用 */
+function toLocalInput(iso){
+  const d = iso ? new Date(iso) : new Date();
+  if (isNaN(d)) return '';
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function fromLocalInput(v){
+  if (!v) return null;
+  const d = new Date(v);
+  return isNaN(d) ? null : d.toISOString();
+}
+/* 兩個時間點之間的耗時 */
+function span(a, b){
+  if (!a || !b) return '';
+  const m = Math.round((new Date(b) - new Date(a)) / 60000);
+  if (m < 0) return '';
+  return m < 60 ? m + ' 分' : m < 1440 ? (m/60).toFixed(1).replace('.0','') + ' 小時'
+                                        : (m/1440).toFixed(1).replace('.0','') + ' 天';
 }
 
 function relTime(iso){
@@ -718,7 +781,8 @@ function renderOrderView(orders){
     if (state.oStatus === 'active' && ['done','lost'].includes(o.status)) return false;
     if (!['active','all'].includes(state.oStatus) && o.status !== state.oStatus) return false;
     if (state.q){
-      const t = normalize([o.customer,o.phone,o.no,o.device,o.symptom,o.note].join(' '));
+      const t = normalize([o.customer,o.phone,o.no,o.device,o.symptom,o.note,
+                           stamp(o.created_at)].join(' '));
       if (!t.includes(normalize(state.q))) return false;
     }
     return true;
@@ -745,6 +809,23 @@ function renderOrderView(orders){
     <div>畫面每 60 秒自動重讀資料並更新逾期狀態；${API.on ? '工單存在這台電腦的 data.db，同一個區網的其他裝置連得到這台就能共用。' : store.db ? '工單存在雲端，換手機或平板都看得到同一份。' : '目前存在這台裝置的瀏覽器裡。'}</div>`;
 }
 
+/* 已經走過的階段，各自蓋的實際時間 */
+function timeline(o){
+  const steps = [
+    ['收件', o.created_at],
+    ['報價', o.quoted_at],
+    ['開修', o.repair_at],
+    ['完工', o.ready_at],
+    ['取件', o.done_at],
+  ].filter(x => x[1]);
+  if (steps.length < 2) return '';
+  const total = span(o.created_at, steps[steps.length-1][1]);
+  return `<div class="timeline">
+    ${steps.map(([k,v]) => `<div class="tl-item"><span class="tl-k">${k}</span><span class="tl-v mono">${stamp(v)}</span></div>`).join('')}
+    ${total ? `<div class="tl-item tl-total"><span class="tl-k">歷時</span><span class="tl-v mono">${total}</span></div>` : ''}
+  </div>`;
+}
+
 function orderCard(o){
   const st = OSTATUS[o.status] || OSTATUS.intake;
   const due = o.due_at ? dueTime(o.due_at) : null;
@@ -755,10 +836,15 @@ function orderCard(o){
     <div class="o-body">
       <div class="o-top">
         <div style="min-width:0">
-          <div class="o-no">${esc(o.no)}　收件 ${relTime(o.created_at)}</div>
+          <div class="o-no">${esc(o.no)}</div>
           <div class="o-name">${esc(o.customer||'—')}${tel?` <a href="tel:${esc(tel)}" class="mono" style="font-size:13px;font-weight:500;color:var(--text-2)">${esc(o.phone)}</a>`:''}</div>
         </div>
         <span class="o-pill">${st.label}</span>
+      </div>
+      <div class="intake-line">
+        <span class="il-k">顧客送修</span>
+        <span class="il-v mono">${stamp(o.created_at)}</span>
+        <span class="il-rel">${relTime(o.created_at)}</span>
       </div>
       <div class="o-device">${esc(o.device||'未填機型')}</div>
       ${o.symptom?`<p class="o-symptom">${esc(o.symptom)}</p>`:''}
@@ -768,6 +854,7 @@ function orderCard(o){
         ${due?`<span class="${due.late?'late-txt':''}">${o.status==='done'||o.status==='lost'?'':'預計 '+due.txt}</span>`:''}
         ${o.source?`<span class="tag src">${esc(o.source)}</span>`:''}
       </div>
+      ${timeline(o)}
       ${o.note?`<div class="o-facts"><span>備註：${esc(o.note)}</span></div>`:''}
       <div class="o-actions">
         ${st.next?`<button class="btn sm go" data-oact="next" data-oid="${o.id}">${st.nextLabel} →</button>`:''}
@@ -899,7 +986,7 @@ function postCard(p){
       ? '<span class="score" style="font-size:15px">📩</span><span class="lbl">私訊</span>'
       : `<span class="score mono">${p.score}</span><span class="lbl">分</span>`}${tier==='hot'&&p.status==='new'?'<span class="dot"></span>':''}</div>
     <div class="pbody">
-      <div class="meta"><span class="src">${esc(p.source)}</span><span class="sep">·</span><span>${esc(p.author||'—')}</span><span class="sep">·</span><span>${relTime(p.posted_at)}</span></div>
+      <div class="meta"><span class="src">${esc(p.source)}</span><span class="sep">·</span><span>${esc(p.author||'—')}</span><span class="sep">·</span><span title="${stamp(p.posted_at)}">${relTime(p.posted_at)}</span><span class="sep">·</span><span class="mono">${stamp(p.posted_at)}</span></div>
       <h3>${p.url&&p.url!=='#'?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>`:esc(p.title)}</h3>
       <p class="excerpt">${esc(p.body)}</p>
       ${tags?`<div class="tags">${tags}</div>`:''}
@@ -974,12 +1061,19 @@ document.addEventListener('click', e => {
     if (act === 'next'){
       const nx = OSTATUS[raw.status].next; if (!nx) return;
       raw.status = nx;
+      const field = STAGE_STAMP[nx];
+      if (field) raw[field] = new Date().toISOString();   // 自動記下這一刻
       if (nx === 'done' && !raw.paid) raw.paid = raw.quote || 0;
       store.saveOrder(raw); render();
-      toast(nx === 'ready' ? '已轉待取件，記得通知客戶' : '已更新為 '+OSTATUS[nx].label);
+      toast((nx === 'ready' ? '已轉待取件，記得通知客戶' : '已更新為 '+OSTATUS[nx].label)
+            + '（' + stamp(raw[field]) + '）');
       return;
     }
-    if (act === 'lost'){ raw.status = 'lost'; store.saveOrder(raw); render(); toast('已標記未成交'); return; }
+    if (act === 'lost'){
+      raw.status = 'lost';
+      raw.done_at = new Date().toISOString();
+      store.saveOrder(raw); render(); toast('已標記未成交'); return;
+    }
     if (act === 'del'){ store.removeOrder(o.id); render(); toast('工單已刪除'); return; }
     if (act === 'edit'){ orderSheet(o); return; }
     if (act === 'notify' || act === 'quotemsg'){
@@ -1073,6 +1167,11 @@ function orderSheet(seed){
       <div class="field"><label>客戶姓名</label><input id="f_customer" value="${esc(o.customer)}" placeholder="林小姐"></div>
       <div class="field"><label>電話</label><input id="f_phone" type="tel" inputmode="numeric" value="${esc(o.phone)}" placeholder="0912345678"></div>
     </div>
+    <div class="field">
+      <label>顧客送修的日期與時間</label>
+      <input id="f_created" type="datetime-local" value="${toLocalInput(o.created_at)}">
+      <span style="font-size:11.5px;color:var(--text-3)">已自動填現在時間。客人昨天送來今天才開單，改這裡就好。</span>
+    </div>
     <div class="field"><label>機型</label><input id="f_device" value="${esc(o.device)}" placeholder="iPhone 14"></div>
     <div class="quickpick" style="margin-bottom:11px">${COMMON_DEVICES.map(d=>`<button type="button" data-fill="f_device" data-val="${esc(d)}">${esc(d)}</button>`).join('')}</div>
     <div class="field"><label>故障狀況</label><textarea id="f_symptom" placeholder="客戶怎麼說的，越具體越好">${esc(o.symptom)}</textarea></div>
@@ -1120,8 +1219,12 @@ function orderSheet(seed){
       status: g('f_status'),
       note: g('f_note'),
       lead_url: o.lead_url || '',
-      created_at: editing ? o.created_at : new Date().toISOString(),
+      created_at: fromLocalInput(g('f_created')) || o.created_at || new Date().toISOString(),
       due_at: new Date(Date.now() + dueH*3600000).toISOString(),
+      quoted_at: o.quoted_at || null,
+      repair_at: o.repair_at || null,
+      ready_at: o.ready_at || null,
+      done_at: o.done_at || null,
     };
     store.saveOrder(rec);
     if (o.lead_id && store.posts.get(o.lead_id)){
