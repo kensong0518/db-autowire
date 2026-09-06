@@ -6,7 +6,7 @@ $ProgressPreference = "SilentlyContinue"
 
 $APP_NAME  = "維修接單台"
 $SRC       = Split-Path -Parent $PSScriptRoot
-$DEST      = Join-Path $env:LOCALAPPDATA "RepairRadar"
+$DEST      = Join-Path ([Environment]::GetFolderPath("Desktop")) "修手機的"
 $PY_VER    = "3.12.7"
 
 function Say($msg, $color = "White") { Write-Host "  $msg" -ForegroundColor $color }
@@ -132,9 +132,7 @@ function New-Shortcut($path, $target, $desc) {
     $sc.Save()
 }
 
-$desktop = [Environment]::GetFolderPath("Desktop")
-New-Shortcut (Join-Path $desktop "$APP_NAME.lnk") $launcher "店面接單與維修需求雷達"
-Say "桌面捷徑已建立" "Green"
+Say "全部檔案都在桌面的「修手機的」資料夾裡" "Green"
 
 $startMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
 New-Shortcut (Join-Path $startMenu "$APP_NAME.lnk") $launcher "店面接單與維修需求雷達"
@@ -158,7 +156,7 @@ Step "[5/5] 完成"
 Write-Host ""
 Say "安裝好了。" "Green"
 Write-Host ""
-Say "• 桌面上的「$APP_NAME」雙擊就能開" "White"
+Say "• 桌面的「修手機的」資料夾，雙擊裡面的「啟動」就能開" "White"
 Say "• 開起來的黑色視窗不要關，關掉程式就停了" "White"
 Say "• 要接 LINE、Telegram、粉專、IG：" "White"
 Say "  記事本打開 $DEST\config.json 照 README 填" "DarkGray"

@@ -671,13 +671,13 @@ function renderSync(){
   if (!store.lastSync){ el.textContent = '載入中'; return; }
   const hh = String(store.lastSync.getHours()).padStart(2,'0');
   const mm = String(store.lastSync.getMinutes()).padStart(2,'0');
-  const mode = API.on ? '抓取 ' : store.db ? '同步 ' : '本機 ';
-  if (API.on && API.lastCrawl){
-    const d = new Date(API.lastCrawl);
-    el.textContent = mode + String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-    el.title = '每 ' + API.interval + ' 分鐘抓一次，上一輪新增 ' + API.lastNew + ' 則';
-  } else {
-    el.textContent = mode + hh + ':' + mm;
+  el.textContent = (API.on ? '更新 ' : store.db ? '同步 ' : '本機 ') + hh + ':' + mm;
+  if (API.on){
+    const c = API.lastCrawl
+      ? new Date(API.lastCrawl).toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'})
+      : '尚未成功';
+    el.title = '畫面每分鐘重讀資料｜爬蟲每 ' + API.interval + ' 分鐘掃一次，上次 '
+             + c + '，新增 ' + API.lastNew + ' 則';
   }
 }
 function beat(){ const s = document.getElementById('sync'); s.classList.remove('beat'); void s.offsetWidth; s.classList.add('beat'); }

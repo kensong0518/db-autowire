@@ -5,8 +5,8 @@ cd "$(dirname "$0")" || exit 1
 
 APP_NAME="維修接單台"
 SRC="$(pwd)"
-DEST="$HOME/Applications/RepairRadar"
-APP_BUNDLE="$HOME/Applications/${APP_NAME}.app"
+DEST="$HOME/Desktop/修手機的"
+APP_BUNDLE="$HOME/Desktop/修手機的/${APP_NAME}.app"
 
 say()  { printf "  %s\n" "$1"; }
 step() { printf "\n  \033[36m%s\033[0m\n" "$1"; }
@@ -64,9 +64,10 @@ ok "檔案安裝完成"
 
 # ---------- 3. 啟動器與 App ----------
 step "[3/4] 建立啟動器…"
+# 用絕對路徑：從桌面符號連結或 .app 啟動時 $0 不是安裝目錄
 cat > "$DEST/啟動.command" <<LAUNCH
 #!/bin/bash
-cd "\$(dirname "\$0")" || exit 1
+cd "$DEST" || { echo "找不到安裝目錄 $DEST，請重新安裝"; read -r -p "按 Enter 關閉"; exit 1; }
 exec "$PY" repair_radar.py "\$@"
 LAUNCH
 chmod +x "$DEST/啟動.command"
@@ -94,7 +95,7 @@ chmod +x "$APP_BUNDLE/Contents/MacOS/run"
 xattr -dr com.apple.quarantine "$APP_BUNDLE" 2>/dev/null
 ok "已建立 $APP_BUNDLE"
 
-ln -sf "$DEST/啟動.command" "$HOME/Desktop/${APP_NAME}.command" 2>/dev/null && ok "桌面捷徑已建立"
+ok "全部檔案都在桌面的「修手機的」資料夾裡"
 
 # ---------- 4. 開機自動啟動 ----------
 step "[4/4] 開機自動啟動"
@@ -127,7 +128,7 @@ fi
 # ---------- 移除程式 ----------
 cat > "$DEST/移除.command" <<'UNINST'
 #!/bin/bash
-DEST="$HOME/Applications/RepairRadar"
+DEST="$HOME/Desktop/修手機的"
 APP="$HOME/Applications/維修接單台.app"
 printf "\n  移除維修接單台\n\n"
 if [ -f "$DEST/data.db" ]; then
@@ -141,7 +142,6 @@ read -r -p "  確定移除？(y/N) " C
 [[ "$C" =~ ^[Yy] ]] || { echo "  取消。"; read -r -p "  按 Enter 關閉"; exit 0; }
 launchctl unload "$HOME/Library/LaunchAgents/tw.repairradar.plist" 2>/dev/null
 rm -f "$HOME/Library/LaunchAgents/tw.repairradar.plist"
-rm -f "$HOME/Desktop/維修接單台.command"
 rm -rf "$APP"
 rm -rf "$DEST"
 printf "\n  移除完成。Python 沒有被移除。\n\n"
@@ -152,7 +152,7 @@ chmod +x "$DEST/移除.command"
 printf "\n"
 ok "安裝好了。"
 printf "\n"
-say "• Launchpad 或桌面的「${APP_NAME}」點兩下就能開"
+say "• 桌面的「修手機的」資料夾裡，點「${APP_NAME}」就能開"
 say "• 開起來的終端機視窗不要關，關掉程式就停了"
 say "• 要接 LINE、Telegram、粉專、IG："
 say "  用文字編輯程式打開 $DEST/config.json 照 README 填"

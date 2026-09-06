@@ -3,7 +3,7 @@ $ErrorActionPreference = "SilentlyContinue"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $APP_NAME = "維修接單台"
-$DEST = Join-Path $env:LOCALAPPDATA "RepairRadar"
+$DEST = Join-Path ([Environment]::GetFolderPath("Desktop")) "修手機的"
 
 Write-Host ""
 Write-Host "  移除 $APP_NAME" -ForegroundColor Yellow
@@ -25,7 +25,6 @@ $confirm = Read-Host "  確定要移除嗎？(y/N)"
 if ($confirm -notmatch "^[Yy]") { Write-Host "  取消。"; Read-Host "  按 Enter 關閉"; exit }
 
 foreach ($f in @(
-    (Join-Path ([Environment]::GetFolderPath("Desktop")) "$APP_NAME.lnk"),
     (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\$APP_NAME.lnk"),
     (Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\$APP_NAME.lnk")
 )) { Remove-Item $f -Force }
