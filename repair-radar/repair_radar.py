@@ -13,11 +13,14 @@
 """
 
 import argparse
+import base64
+import binascii
 import html
 import http.server
 import json
 import os
 import re
+import socket
 import sqlite3
 import ssl
 import sys
@@ -35,6 +38,7 @@ DB_PATH = os.path.join(BASE_DIR, "data.db")
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
 CONFIG_EXAMPLE = os.path.join(BASE_DIR, "config.example.json")
 KEYWORDS_PATH = os.path.join(BASE_DIR, "keywords.json")
+PHOTO_DIR = os.path.join(BASE_DIR, "photos")
 
 TPE = timezone(timedelta(hours=8))
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -73,6 +77,11 @@ DEFAULT_CONFIG = {
     "telegram_chat_id": "",
     "notify_threshold": 70,
     "port": 8420,
+
+    "_區網說明": ("lan_access 開著時，同一個 Wi-Fi 下的手機、平板都能連進來收機拍照。"
+                  "代表同網段的人都連得到，公用網路請關掉改成 false。"),
+    "lan_access": True,
+    "default_warranty_days": 90,
 
     "_meta說明": ("接自己的粉專與 IG 商業帳號，抓自家的私訊與留言。"
                   "這是 Meta 官方支援的方式，不是爬別人的社團或 Marketplace——"
@@ -151,21 +160,65 @@ CREATE TABLE IF NOT EXISTS orders (
   quote INTEGER DEFAULT 0, paid INTEGER DEFAULT 0,
   source TEXT, status TEXT DEFAULT 'intake', note TEXT,
   lead_url TEXT, created_at TEXT, due_at TEXT,
-  quoted_at TEXT, repair_at TEXT, ready_at TEXT, done_at TEXT
+  quoted_at TEXT, repair_at TEXT, ready_at TEXT, done_at TEXT,
+  imei TEXT, unlock TEXT, accessories TEXT,
+  backed_up INTEGER DEFAULT 0, data_critical INTEGER DEFAULT 0,
+  intake_photos TEXT,
+  disclaimer_ok INTEGER DEFAULT 0, disclaimer_at TEXT,
+  warranty_days INTEGER DEFAULT 90, warranty_until TEXT,
+  cost INTEGER DEFAULT 0, deposit INTEGER DEFAULT 0,
+  part_id TEXT, picked_by TEXT, picked_at TEXT
+);
+CREATE TABLE IF NOT EXISTS parts (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  qty INTEGER DEFAULT 0,
+  cost INTEGER DEFAULT 0,
+  low_at INTEGER DEFAULT 1,
+  note TEXT,
+  updated_at TEXT
 );
 CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT);
 CREATE INDEX IF NOT EXISTS idx_posts_time ON posts(posted_at DESC);
+CREATE INDEX IF NOT EXISTS idx_orders_phone ON orders(phone);
 """
 
 POST_COLS = ["id", "title", "body", "source", "board", "author", "url",
              "posted_at", "score", "status", "notified", "direct", "created_at"]
 ORDER_COLS = ["id", "no", "customer", "phone", "device", "symptom", "quote",
               "paid", "source", "status", "note", "lead_url", "created_at", "due_at",
-              "quoted_at", "repair_at", "ready_at", "done_at"]
+              "quoted_at", "repair_at", "ready_at", "done_at",
+              # v2：收機檢查表
+              "imei", "unlock", "accessories", "backed_up", "data_critical",
+              "intake_photos",
+              # v2：免責與保固
+              "disclaimer_ok", "disclaimer_at", "warranty_days", "warranty_until",
+              # v2：成本與訂金
+              "cost", "deposit", "part_id",
+              # v2：取件簽收
+              "picked_by", "picked_at"]
+
+PART_COLS = ["id", "name", "qty", "cost", "low_at", "note", "updated_at"]
+
+# 舊資料庫升級時要補的欄位：欄名 -> 型別預設
+ORDER_NEW_COLS = [
+    ("quoted_at", "TEXT"), ("repair_at", "TEXT"),
+    ("ready_at", "TEXT"), ("done_at", "TEXT"),
+    ("imei", "TEXT"), ("unlock", "TEXT"), ("accessories", "TEXT"),
+    ("backed_up", "INTEGER DEFAULT 0"), ("data_critical", "INTEGER DEFAULT 0"),
+    ("intake_photos", "TEXT"),
+    ("disclaimer_ok", "INTEGER DEFAULT 0"), ("disclaimer_at", "TEXT"),
+    ("warranty_days", "INTEGER DEFAULT 90"), ("warranty_until", "TEXT"),
+    ("cost", "INTEGER DEFAULT 0"), ("deposit", "INTEGER DEFAULT 0"),
+    ("part_id", "TEXT"), ("picked_by", "TEXT"), ("picked_at", "TEXT"),
+]
 
 # 各階段完成時自動蓋的時間戳
 STAGE_STAMP = {"quoted": "quoted_at", "repair": "repair_at",
                "ready": "ready_at", "done": "done_at"}
+
+# 需要簽免責才能開修的故障關鍵字
+DISCLAIMER_TRIGGERS = ("泡水", "進水", "主機板", "開不了機", "無法開機")
 
 
 def db():
@@ -184,10 +237,14 @@ def init_db():
             log("資料庫已升級：posts 新增 direct 欄位")
 
         have = {r["name"] for r in conn.execute("PRAGMA table_info(orders)")}
-        for col in ("quoted_at", "repair_at", "ready_at", "done_at"):
+        added = []
+        for col, decl in ORDER_NEW_COLS:
             if col not in have:
-                conn.execute("ALTER TABLE orders ADD COLUMN %s TEXT" % col)
-                log("資料庫已升級：orders 新增 %s 欄位" % col)
+                conn.execute("ALTER TABLE orders ADD COLUMN %s %s" % (col, decl))
+                added.append(col)
+        if added:
+            log("資料庫已升級：orders 新增 %d 個欄位（%s）" % (len(added), "、".join(added)))
+    os.makedirs(PHOTO_DIR, exist_ok=True)
 
 
 def get_setting(conn, key, default=None):
@@ -213,6 +270,106 @@ def upsert(conn, table, cols, rec):
     sql = "INSERT INTO %s(%s) VALUES(%s) ON CONFLICT(id) DO UPDATE SET %s" % (
         table, ",".join(fields), placeholders, updates or "id=id")
     conn.execute(sql, [rec[c] for c in fields])
+
+
+
+# ============================================================
+# 照片儲存
+# ------------------------------------------------------------
+# 存實體檔案，DB 只存檔名。base64 塞進 SQLite 會把 db 撐爆。
+# ============================================================
+SAFE_NAME = re.compile(r"^[A-Za-z0-9_.-]+$")
+PHOTO_MIME = {".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+              ".png": "image/png", ".webp": "image/webp"}
+MAX_PHOTO_BYTES = 6 * 1024 * 1024
+
+
+def safe_photo_name(name):
+    """只接受純檔名。擋掉路徑穿越、絕對路徑與非白名單字元。"""
+    if not name or len(name) > 120:
+        return None
+    if "/" in name or "\\" in name or ".." in name:
+        return None
+    if not SAFE_NAME.match(name):
+        return None
+    if os.path.splitext(name)[1].lower() not in PHOTO_MIME:
+        return None
+    return name
+
+
+def save_photo(order_id, data_url):
+    """把 data: URL 寫成檔案，回傳檔名。"""
+    m = re.match(r"^data:image/(jpeg|jpg|png|webp);base64,(.+)$", data_url or "", re.S)
+    if not m:
+        raise ValueError("只接受 data:image/... 的 base64 圖片")
+    ext = ".jpg" if m.group(1) in ("jpeg", "jpg") else "." + m.group(1)
+    raw = base64.b64decode(m.group(2), validate=True)
+    if len(raw) > MAX_PHOTO_BYTES:
+        raise ValueError("圖片超過 %d MB，請在前端壓縮後再上傳" % (MAX_PHOTO_BYTES // 1048576))
+
+    oid = re.sub(r"[^A-Za-z0-9]", "", str(order_id or "x"))[:24] or "x"
+    name = "%s_%s_%s%s" % (oid, datetime.now(TPE).strftime("%Y%m%d%H%M%S"),
+                           binascii.hexlify(os.urandom(3)).decode(), ext)
+    os.makedirs(PHOTO_DIR, exist_ok=True)
+    with open(os.path.join(PHOTO_DIR, name), "wb") as f:
+        f.write(raw)
+    return name, len(raw)
+
+
+def delete_photos(names_json):
+    """刪工單時一併把照片檔清掉。"""
+    try:
+        names = json.loads(names_json or "[]")
+    except Exception:
+        return 0
+    n = 0
+    for name in names if isinstance(names, list) else []:
+        safe = safe_photo_name(str(name))
+        if not safe:
+            continue
+        try:
+            os.remove(os.path.join(PHOTO_DIR, safe))
+            n += 1
+        except OSError:
+            pass
+    return n
+
+
+# ============================================================
+# 客戶歷史
+# ============================================================
+def normalize_phone(p):
+    """去掉分隔符號與 +886 前綴，統一成 09xxxxxxxx 形式。"""
+    d = re.sub(r"[^0-9+]", "", p or "")
+    if d.startswith("+886"):
+        d = "0" + d[4:]
+    elif d.startswith("886") and len(d) > 9:
+        d = "0" + d[3:]
+    return d.lstrip("+")
+
+
+def phone_history(conn, phone, exclude_id=None):
+    key = normalize_phone(phone)
+    if len(key) < 8:
+        return []
+    out = []
+    for r in conn.execute("SELECT * FROM orders ORDER BY created_at DESC LIMIT 400"):
+        o = dict(r)
+        if o["id"] == exclude_id:
+            continue
+        if normalize_phone(o.get("phone")) == key:
+            out.append(o)
+    return out
+
+
+def warranty_until(days, from_iso=None):
+    base = datetime.now(TPE)
+    if from_iso:
+        try:
+            base = datetime.fromisoformat(from_iso.replace("Z", "+00:00")).astimezone(TPE)
+        except Exception:
+            pass
+    return (base + timedelta(days=int(days or 90))).isoformat()
 
 
 # ============================================================
@@ -569,6 +726,19 @@ def send_telegram(cfg, text):
         return False, str(e)
 
 
+def local_ip():
+    """取得這台機器在區網上的 IP。不會真的送出封包。"""
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        sock.connect(("192.0.2.1", 9))      # TEST-NET-1，保證不可路由
+        ip = sock.getsockname()[0]
+        return ip if not ip.startswith("127.") else None
+    except Exception:
+        return None
+    finally:
+        sock.close()
+
+
 def month_key():
     return datetime.now(TPE).strftime("%Y-%m")
 
@@ -671,6 +841,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
     server_version = "RepairRadar"
     cfg = {}
     keywords = {}
+    lan_url = ""
 
     def log_message(self, *_):
         pass
@@ -679,6 +850,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def send_json(self, obj, code=200):
         body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
+        self.send_header("Content-Type", "application/json; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def fail(self, code, msg, reason="Error"):
+        """送出錯誤。
+
+        http.server 的 send_error() 會把原因短語用 latin-1 編碼，
+        中文丟進去會 UnicodeEncodeError 讓連線直接斷掉，
+        所以這裡自己寫回應：原因短語保持 ASCII，中文放在 body。
+        """
+        body = json.dumps({"ok": False, "msg": msg}, ensure_ascii=False).encode("utf-8")
+        self.send_response(code, reason)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
@@ -699,7 +885,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             with open(path, "rb") as f:
                 body = f.read()
         except OSError:
-            self.send_error(404, "not found")
+            self.fail(404, "查無此路徑", "Not Found")
             return
         self.send_response(200)
         self.send_header("Content-Type", ctype)
@@ -714,7 +900,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             with open(os.path.join(WEB_DIR, "index.html"), encoding="utf-8") as f:
                 content = f.read()
         except OSError:
-            self.send_error(404, "找不到 web/index.html")
+            self.fail(404, "找不到 web/index.html", "Not Found")
             return
         if not content.lstrip().lower().startswith("<!doctype"):
             content = PAGE_SHELL % content
@@ -740,7 +926,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
                              args=(Handler.cfg, Handler.keywords),
                              daemon=True).start()
             return self.send_json({"ok": True, "msg": "已開始抓取"})
-        self.send_error(404, "not found")
+        if route == "/api/history":
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            phone = (q.get("phone") or [""])[0]
+            exclude = (q.get("exclude") or [None])[0]
+            with db() as conn:
+                rows = phone_history(conn, phone, exclude)
+            return self.send_json({"phone": normalize_phone(phone),
+                                   "count": len(rows), "orders": rows})
+        if route.startswith("/photos/"):
+            return self.serve_photo(route[len("/photos/"):])
+        self.fail(404, "查無此路徑", "Not Found")
+
+    def serve_photo(self, raw_name):
+        name = safe_photo_name(urllib.parse.unquote(raw_name))
+        if not name:
+            return self.fail(400, "檔名不合法", "Bad Request")
+        path = os.path.join(PHOTO_DIR, name)
+        # 再確認一次解析後的路徑真的落在 photos/ 底下
+        if os.path.realpath(path) != os.path.join(os.path.realpath(PHOTO_DIR), name):
+            return self.fail(400, "檔名不合法", "Bad Request")
+        ctype = PHOTO_MIME.get(os.path.splitext(name)[1].lower(), "application/octet-stream")
+        return self.serve_file(path, ctype)
 
     def do_POST(self):
         route = urllib.parse.urlparse(self.path).path
@@ -759,10 +966,39 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     if "score" not in rec or rec.get("score") is None:
                         rec["score"] = score_post(rec, Handler.keywords)[0]
                     upsert(conn, "posts", POST_COLS, rec)
+                elif route == "/api/parts":
+                    rec = {k: payload.get(k) for k in PART_COLS if k in payload}
+                    if not rec.get("id"):
+                        return self.send_json({"ok": False, "msg": "缺少 id"}, 400)
+                    rec["updated_at"] = datetime.now(TPE).isoformat()
+                    upsert(conn, "parts", PART_COLS, rec)
+                elif route == "/api/part-take":
+                    # 開修時扣料：只扣 1 片，不會扣成負數
+                    pid = payload.get("id")
+                    n = int(payload.get("qty") or 1)
+                    row = conn.execute("SELECT qty FROM parts WHERE id=?", (pid,)).fetchone()
+                    if row is None:
+                        return self.send_json({"ok": False, "msg": "找不到這個料件"}, 404)
+                    left = max(0, int(row["qty"] or 0) - n)
+                    conn.execute("UPDATE parts SET qty=?, updated_at=? WHERE id=?",
+                                 (left, datetime.now(TPE).isoformat(), pid))
+                    return self.send_json({"ok": True, "qty": left})
+                elif route == "/api/photo":
+                    try:
+                        name, size = save_photo(payload.get("order_id"), payload.get("data"))
+                    except Exception as e:
+                        return self.send_json({"ok": False, "msg": str(e)}, 400)
+                    return self.send_json({"ok": True, "filename": name,
+                                           "url": "/photos/" + name, "bytes": size})
                 elif route == "/api/delete":
                     table = payload.get("table")
-                    if table not in ("orders", "posts"):
+                    if table not in ("orders", "posts", "parts"):
                         return self.send_json({"ok": False, "msg": "table 不合法"}, 400)
+                    if table == "orders":
+                        row = conn.execute("SELECT intake_photos FROM orders WHERE id=?",
+                                           (payload.get("id"),)).fetchone()
+                        if row:
+                            delete_photos(row["intake_photos"])
                     conn.execute("DELETE FROM %s WHERE id=?" % table,
                                  (payload.get("id"),))
                 elif route == "/api/settings":
@@ -775,7 +1011,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                         json.dump(kws, f, ensure_ascii=False, indent=2)
                     self.rescore(conn)
                 else:
-                    return self.send_error(404, "not found")
+                    return self.fail(404, "查無此路徑", "Not Found")
             return self.send_json({"ok": True})
         except Exception as e:
             return self.send_json({"ok": False, "msg": str(e)}, 500)
@@ -794,6 +1030,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 "SELECT * FROM posts ORDER BY posted_at DESC LIMIT 400")]
             orders = [dict(r) for r in conn.execute(
                 "SELECT * FROM orders ORDER BY created_at DESC LIMIT 400")]
+            parts = [dict(r) for r in conn.execute(
+                "SELECT * FROM parts ORDER BY name")]
             settings = {r["k"]: json.loads(r["v"]) for r in
                         conn.execute("SELECT k,v FROM settings")}
         settings.setdefault("line_quota_used", 0)
@@ -806,7 +1044,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         settings["meta_ig_ready"] = bool(Handler.cfg.get("meta_ig_user_id"))
         settings["crawl_interval_minutes"] = Handler.cfg.get("crawl_interval_minutes", 10)
         settings["boards"] = Handler.cfg.get("ptt_boards", [])
-        return {"posts": posts, "orders": orders,
+        settings["default_warranty_days"] = Handler.cfg.get("default_warranty_days", 90)
+        settings["lan_url"] = Handler.lan_url
+        return {"posts": posts, "orders": orders, "parts": parts,
                 "settings": settings, "keywords": Handler.keywords}
 
 
@@ -824,6 +1064,8 @@ def main():
     parser.add_argument("--once", action="store_true", help="只跑一次爬蟲就結束，不開網頁")
     parser.add_argument("--no-crawl", action="store_true", help="只開網頁，不跑爬蟲")
     parser.add_argument("--no-browser", action="store_true", help="不要自動打開瀏覽器")
+    parser.add_argument("--local-only", action="store_true",
+                        help="只有這台電腦連得到，手機不能連（公用網路時用）")
     args = parser.parse_args()
 
     if not os.path.exists(CONFIG_PATH) and os.path.exists(CONFIG_EXAMPLE):
@@ -849,16 +1091,27 @@ def main():
         threading.Thread(target=crawl_loop, args=(cfg, keywords, stop_event),
                          daemon=True).start()
 
+    lan = bool(cfg.get("lan_access", True)) and not args.local_only
+    bind = "0.0.0.0" if lan else "127.0.0.1"
     try:
-        httpd = ThreadedServer(("127.0.0.1", port), Handler)
+        httpd = ThreadedServer((bind, port), Handler)
     except OSError as e:
         log("埠號 %d 被占用（%s）。換一個：python3 repair_radar.py --port 8421" % (port, e))
         sys.exit(1)
 
     url = "http://127.0.0.1:%d" % port
+    lan_ip = local_ip() if lan else None
+    Handler.lan_url = "http://%s:%d" % (lan_ip, port) if lan_ip else ""
+
     log("=" * 52)
     log("維修接單台已啟動：%s" % url)
-    log("關掉這個視窗就會停止。資料存在 data.db")
+    if Handler.lan_url:
+        log("手機請連　　　　　%s" % Handler.lan_url)
+        log("※ 同一個 Wi-Fi 下的人都連得到這個網址。在公用網路請把")
+        log("  config.json 的 lan_access 改成 false，或加 --local-only 啟動。")
+    elif lan:
+        log("找不到區網 IP，手機可能連不進來。")
+    log("關掉這個視窗就會停止。資料存在 data.db，照片存在 photos/")
     log("LINE 推播：%s　Telegram 推播：%s"
         % ("已設定" if cfg.get("line_channel_token") else "未設定",
            "已設定" if cfg.get("telegram_bot_token") else "未設定"))

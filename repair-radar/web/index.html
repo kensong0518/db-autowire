@@ -243,6 +243,133 @@ header.top{
 .breakdown .plus{color:var(--good)}
 .breakdown .minus{color:var(--bad)}
 
+/* ---------- v2：收機檢查、照片、徽章、料件 ---------- */
+.sec{
+  margin:16px 0 9px;padding-top:12px;border-top:1px solid var(--line-soft);
+  font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);font-weight:600;
+}
+.fhint{font-size:11.5px;color:var(--text-3);line-height:1.5}
+
+.photo-box{border:1px dashed var(--line);border-radius:9px;padding:10px;background:var(--surface-2)}
+.photo-grid{display:flex;flex-wrap:wrap;gap:7px}
+.photo-grid:empty{display:none}
+.ph{position:relative;width:74px;height:74px;border-radius:7px;overflow:hidden;border:1px solid var(--line)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-x{
+  position:absolute;top:2px;right:2px;width:20px;height:20px;line-height:1;
+  border:0;border-radius:50%;background:rgba(0,0,0,.66);color:#fff;font-size:14px;padding:0;
+}
+.photo-add{display:inline-block;margin-top:8px}
+.photo-add span{
+  display:inline-block;border:1px solid var(--accent);color:var(--accent);
+  border-radius:8px;padding:7px 14px;font-size:13.5px;font-weight:600;cursor:pointer;
+}
+.photo-add.off span{border-color:var(--line);color:var(--text-3);cursor:not-allowed}
+.photo-add + .fhint{display:block;margin-top:7px}
+
+.checks{display:flex;flex-direction:column;gap:7px;margin:4px 0 11px}
+.chk{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;line-height:1.55;cursor:pointer}
+.chk input{margin-top:3px;width:17px;height:17px;flex:0 0 auto;accent-color:var(--accent)}
+.chk.disclaimer{
+  border:1px solid var(--line);border-radius:9px;padding:10px 11px;background:var(--surface-2);
+  font-size:12.5px;color:var(--text-2);
+}
+.chk.disclaimer.required{border-color:var(--warm)}
+.chk.disclaimer.signed{border-color:var(--good);background:color-mix(in srgb,var(--good) 8%,var(--surface-2))}
+
+.quickpick button.on{border-color:var(--accent);background:var(--accent);color:#fff}
+.quickpick button.low{border-color:var(--bad)}
+.quickpick button .pq{
+  margin-left:6px;font-family:"IBM Plex Mono",monospace;font-size:11px;opacity:.7;
+}
+
+.margin-live{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;margin:-4px 0 12px;font-size:12.5px}
+.margin-live:empty{margin:0}
+.ml-k{color:var(--text-3);font-size:11px;letter-spacing:.08em}
+.ml-v{font-size:17px;font-weight:700}
+.ml-v.good{color:var(--good)}
+.ml-v.warn{color:var(--warm)}
+.ml-v.bad{color:var(--bad)}
+.ml-r{color:var(--text-3);font-size:12px}
+.ml-d{color:var(--text-2);margin-left:auto}
+
+.hist{border:1px solid var(--cool);border-radius:9px;padding:9px 10px;margin:-4px 0 12px;
+  background:color-mix(in srgb,var(--cool) 8%,var(--surface))}
+.hist-head{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;margin-bottom:6px}
+.hist-head .btn{margin-left:auto}
+.hist-row{display:flex;flex-wrap:wrap;gap:4px 9px;font-size:12px;color:var(--text-2);
+  padding:4px 0;border-top:1px solid var(--line-soft);align-items:baseline}
+.hr-dev{font-weight:600;color:var(--text)}
+.hr-amt{color:var(--text)}
+.hr-st{color:var(--text-3)}
+
+.bdgs{display:flex;flex-wrap:wrap;gap:5px}
+.bdg{
+  font-size:11px;padding:2px 8px;border-radius:5px;font-weight:500;
+  background:var(--surface-2);color:var(--text-2);border:1px solid var(--line-soft);
+}
+.bdg.ok{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+.bdg.warn{color:var(--warm);border-color:color-mix(in srgb,var(--warm) 40%,transparent)}
+.bdg.danger{background:var(--bad);color:#fff;border-color:var(--bad)}
+.bdg.muted{color:var(--text-3)}
+.wbadge{font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid var(--line)}
+.wbadge.on{color:var(--good);border-color:color-mix(in srgb,var(--good) 40%,transparent)}
+.wbadge.off{color:var(--text-3)}
+
+.photos{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.pt{width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:zoom-in}
+.pt-n{font-size:11px;color:var(--text-3)}
+.o-facts.intake{padding:5px 8px;background:var(--surface-2);border-radius:6px}
+.o-facts .mg.good{color:var(--good)}
+.o-facts .mg.warn{color:var(--warm)}
+.o-facts .mg.bad{color:var(--bad)}
+.mg-r{font-size:11px;color:var(--text-3)}
+.owe{color:var(--accent);font-weight:500}
+.order.stale{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 4%,var(--surface))}
+
+.part{
+  display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;
+  background:var(--surface);border:1px solid var(--line-soft);border-radius:10px;padding:11px 12px;
+}
+.part.low{border-color:var(--bad)}
+.pt-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.pt-qty{display:flex;align-items:center;gap:9px}
+.qbtn{
+  width:34px;height:34px;border:1px solid var(--line);background:var(--surface-2);
+  border-radius:8px;font-size:17px;line-height:1;color:var(--text);
+}
+.qbtn:hover{border-color:var(--accent);color:var(--accent)}
+.qn{font-size:21px;font-weight:600;min-width:32px;text-align:center}
+.qn.low{color:var(--bad)}
+.pt-acts{grid-column:1/-1;display:flex;gap:5px}
+
+.lightbox{
+  position:fixed;inset:0;z-index:90;background:rgba(6,10,11,.92);
+  display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out;
+}
+.lightbox img{max-width:100%;max-height:100%;border-radius:8px}
+.lightbox .lb-x{
+  position:absolute;top:14px;right:16px;border:0;background:rgba(255,255,255,.15);
+  color:#fff;border-radius:50%;width:36px;height:36px;font-size:19px;
+}
+
+/* ---------- v2：線索聯絡方式 ---------- */
+.contact{
+  margin:6px 0 8px;border:1px solid var(--good);border-radius:9px;overflow:hidden;
+  background:color-mix(in srgb,var(--good) 7%,var(--surface));
+}
+.contact-head{
+  display:flex;align-items:center;gap:7px;padding:6px 10px;font-size:11px;
+  letter-spacing:.1em;color:var(--good);font-weight:700;
+  border-bottom:1px solid color-mix(in srgb,var(--good) 25%,transparent);
+}
+.contact-row{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:13.5px;flex-wrap:wrap}
+.contact-row + .contact-row{border-top:1px solid var(--line-soft)}
+.ct-k{font-size:11px;color:var(--text-3);min-width:52px;letter-spacing:.06em}
+.ct-v{font-weight:600;color:var(--text);word-break:break-all;font-family:"IBM Plex Mono",monospace}
+.ct-v a{color:var(--accent);text-decoration:none}
+.ct-acts{margin-left:auto;display:flex;gap:5px}
+
 /* ---------- sheet ---------- */
 .sheet-bg{position:fixed;inset:0;background:rgba(6,10,11,.55);z-index:60;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--surface);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;width:100%;max-width:640px;max-height:90vh;overflow:auto;padding:16px 15px 22px;box-shadow:var(--shadow)}
@@ -295,6 +422,7 @@ header.top{
   <nav class="tabs" role="tablist">
     <button class="tab" role="tab" data-view="orders" aria-selected="true">接單<span class="badge" id="tabOrders">0</span></button>
     <button class="tab" role="tab" data-view="radar" aria-selected="false">需求雷達<span class="badge" id="tabRadar">0</span></button>
+    <button class="tab" role="tab" data-view="parts" aria-selected="false">料件<span class="badge" id="tabParts">0</span></button>
   </nav>
 </header>
 
@@ -418,7 +546,7 @@ const LS = {
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
 };
 
-const API = { on:false, lastCrawl:null, lastNew:0, boards:[], interval:10, lineReady:false, tgReady:false, metaReady:false, fbReady:false, igReady:false };
+const API = { on:false, lastCrawl:null, lastNew:0, boards:[], interval:10, lineReady:false, tgReady:false, metaReady:false, fbReady:false, igReady:false, lanUrl:'' };
 
 async function apiGet(path){
   const r = await fetch(path, {cache:'no-store'});
@@ -431,7 +559,7 @@ function apiPost(path, body){
 
 const store = {
   db:null, ready:false,
-  orders:new Map(), posts:new Map(),
+  orders:new Map(), posts:new Map(), parts:new Map(),
   settings:{ line_quota_used:0, quota_month:monthKey(), keywords:null },
   lastSync:null,
 
@@ -460,6 +588,7 @@ const store = {
     if (!this.db){
       LS.get('rr_orders',[]).forEach(o => this.orders.set(o.id,o));
       LS.get('rr_posts',[]).forEach(p => this.posts.set(p.id,p));
+      LS.get('rr_parts',[]).forEach(p => this.parts.set(p.id,p));
       this.settings = Object.assign(this.settings, LS.get('rr_settings',{}));
     }
     if (this.settings.quota_month !== monthKey()){
@@ -473,6 +602,7 @@ const store = {
   applyState(s){
     this.orders.clear(); (s.orders||[]).forEach(o => this.orders.set(o.id, o));
     this.posts.clear();  (s.posts||[]).forEach(p => this.posts.set(p.id, p));
+    this.parts.clear();  (s.parts||[]).forEach(p => this.parts.set(p.id, p));
     const st = s.settings || {};
     this.settings = Object.assign({}, this.settings, st, {keywords: s.keywords || null});
     API.lastCrawl = st.last_crawl || null;
@@ -482,6 +612,7 @@ const store = {
     API.lineReady = !!st.line_ready;
     API.tgReady = !!st.telegram_ready;
     API.metaReady = !!st.meta_ready;
+    API.lanUrl = st.lan_url || '';
     API.fbReady = !!st.meta_page_ready;
     API.igReady = !!st.meta_ig_ready;
     this.stamp();
@@ -496,13 +627,15 @@ const store = {
     }
     if (!this.db){ this.stamp(); return; }
     try{
-      const [os, ps, cfg] = await Promise.all([
+      const [os, ps, pt, cfg] = await Promise.all([
         this.db.collection('orders').limit(500).get(),
         this.db.collection('posts').limit(500).get(),
+        this.db.collection('parts').limit(200).get(),
         this.db.doc('config/settings').get(),
       ]);
       this.orders.clear(); this.absorb(os, this.orders);
       this.posts.clear();  this.absorb(ps, this.posts);
+      this.parts.clear();  this.absorb(pt, this.parts);
       const cv = cfg && (cfg.data ? cfg.data() : cfg);
       if (cv) this.settings = Object.assign(this.settings, cv);
       this.stamp();
@@ -535,6 +668,27 @@ const store = {
     if (API.on) apiPost('/api/delete', {table:'posts', id});
     else if (this.db) this.db.doc('posts/'+id).delete().catch(()=>{});
     else LS.set('rr_posts',[...this.posts.values()]);
+  },
+  savePart(p){
+    p.updated_at = new Date().toISOString();
+    this.parts.set(p.id, p);
+    if (API.on) apiPost('/api/parts', p);
+    else if (this.db) this.db.doc('parts/'+p.id).set(p).catch(()=>{});
+    else LS.set('rr_parts',[...this.parts.values()]);
+    this.stamp();
+  },
+  removePart(id){
+    this.parts.delete(id);
+    if (API.on) apiPost('/api/delete', {table:'parts', id});
+    else if (this.db) this.db.doc('parts/'+id).delete().catch(()=>{});
+    else LS.set('rr_parts',[...this.parts.values()]);
+  },
+  async takePart(id, qty){
+    const p = this.parts.get(id); if (!p) return;
+    p.qty = Math.max(0, (p.qty||0) - (qty||1));
+    if (API.on) await apiPost('/api/part-take', {id, qty: qty||1});
+    else this.savePart(p);
+    this.parts.set(id, p);
   },
   saveSettings(){
     if (API.on) apiPost('/api/settings', {line_quota_used:this.settings.line_quota_used, quota_month:this.settings.quota_month});
@@ -628,7 +782,9 @@ function readyMsg(o){
   return `${o.customer}您好，這裡是維修門市。您 ${sent} ${o.device} 已經修好可以取件了${dur}，${amt}營業時間內隨時過來都可以。單號 ${o.no}，取件時報單號或電話就行。`;
 }
 function quoteMsg(o){
-  return `${o.customer}您好，您的 ${o.device} 檢測完成了。狀況是${o.symptom || '需要更換零件'}，維修費用 ${o.quote || '（待填）'} 元，含料件與工資，修好保固三個月。方便的話回覆一下要不要進行，我這邊就排進去。`;
+  const d = parseInt(o.warranty_days, 10) || store.settings.default_warranty_days || 90;
+  const w = d % 30 === 0 ? `${d/30} 個月` : `${d} 天`;
+  return `${o.customer}您好，您的 ${o.device} 檢測完成了。狀況是${o.symptom || '需要更換零件'}，維修費用 ${o.quote || '（待填）'} 元，含料件與工資，修好保固 ${w}。方便的話回覆一下要不要進行，我這邊就排進去。`;
 }
 
 /* ============================================================
@@ -714,10 +870,13 @@ function render(){
   const t = threshold().value === Infinity ? 70 : threshold().value;
   document.getElementById('tabRadar').textContent = posts.filter(p => p.status === 'new' && (p.direct || p.score >= t)).length;
   document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === state.view)));
-  document.getElementById('fab').textContent = state.view === 'orders' ? '＋ 接單' : '＋ 貼上需求';
+  document.getElementById('fab').textContent =
+    state.view === 'orders' ? '＋ 接單' : state.view === 'parts' ? '＋ 料件' : '＋ 貼上需求';
 
-  if (state.view === 'orders'){ renderOrderView(orders); }
-  else { renderRadarView(posts); }
+  document.getElementById('tabParts').textContent = lowParts().length || store.parts.size;
+  if (state.view === 'orders') renderOrderView(orders);
+  else if (state.view === 'parts') renderPartsView();
+  else renderRadarView(posts);
 }
 
 function renderSync(){
@@ -743,18 +902,25 @@ function renderOrderView(orders){
   const inShop = orders.filter(o => ['intake','quoted','repair'].includes(o.status));
   const ready = orders.filter(o => o.status === 'ready');
   const late = orders.filter(o => o.late);
-  const revenue = orders.filter(o => o.status === 'done' && new Date(o.created_at).toDateString() === today)
-                        .reduce((s,o) => s + (o.paid || o.quote || 0), 0);
+  const doneToday = orders.filter(o => o.status === 'done'
+    && new Date(o.done_at || o.created_at).toDateString() === today);
+  const revenue = doneToday.reduce((s,o) => s + (o.paid || o.quote || 0), 0);
+  const profit  = doneToday.reduce((s,o) => s + (o.paid || o.quote || 0) - (o.cost || 0), 0);
+  const stale = orders.filter(o => pickupOverdue(o));
+  const low = lowParts();
 
   document.getElementById('notices').innerHTML = [
     usingDemoOrders ? `<div class="notice"><span>◆</span><div><strong>目前是示範工單。</strong>按右下「接單」開第一張單，示範資料就會消失。畫面每分鐘自動更新一次。</div></div>` : '',
     late.length ? `<div class="notice hot"><span>◆</span><div><strong>${late.length} 張單已逾期。</strong>超過預計完成時間還沒交件，先處理這幾張。</div></div>` : '',
+    stale.length ? `<div class="notice hot"><span>◆</span><div><strong>${stale.length} 台修好放超過 ${READY_OVERDUE_DAYS} 天沒人來拿。</strong>打個電話催一下，機器擺著也是風險。</div></div>` : '',
+    low.length ? `<div class="notice"><span>◆</span><div><strong>要叫料了：</strong>${
+      low.map(p => `${esc(p.name)} 只剩 ${p.qty||0} 片`).join('、')}。</div></div>` : '',
   ].join('');
 
   document.getElementById('stats').innerHTML = `
-    <div class="stat ${ready.length?'go':''}">
+    <div class="stat ${stale.length?'alert':ready.length?'go':''}">
       <span class="k">待取件</span><span class="v">${ready.length}</span>
-      <span class="n">可以通知客戶了</span>
+      <span class="n">${stale.length ? `其中 ${stale.length} 台逾期未取` : '可以通知客戶了'}</span>
     </div>
     <div class="stat ${late.length?'alert':''}">
       <span class="k">店內在修</span><span class="v">${inShop.length}</span>
@@ -762,8 +928,8 @@ function renderOrderView(orders){
     </div>
     <div class="stat"><span class="k">今日進單</span><span class="v">${todays.length}</span>
       <span class="n">共 ${orders.length} 張在系統</span></div>
-    <div class="stat"><span class="k">今日營收</span><span class="v">${money(revenue)}</span>
-      <span class="n">已完成取件的單</span></div>`;
+    <div class="stat"><span class="k">今日毛利</span><span class="v">${money(profit)}</span>
+      <span class="n">營收 ${money(revenue)}　${doneToday.length} 張取件</span></div>`;
 
   const counts = {
     active: orders.filter(o => !['done','lost'].includes(o.status)).length,
@@ -782,21 +948,32 @@ function renderOrderView(orders){
     if (!['active','all'].includes(state.oStatus) && o.status !== state.oStatus) return false;
     if (state.q){
       const t = normalize([o.customer,o.phone,o.no,o.device,o.symptom,o.note,
-                           stamp(o.created_at)].join(' '));
+                           o.imei, stamp(o.created_at)].join(' '));
       if (!t.includes(normalize(state.q))) return false;
     }
     return true;
   });
 
   const board = document.getElementById('board');
+  if (state.q && shown.length){
+    const w = shown.map(o => warrantyState(o)).filter(Boolean);
+    if (w.length){
+      const inWarranty = w.filter(x => x.ok).length;
+      document.getElementById('notices').innerHTML +=
+        `<div class="notice"><span>◆</span><div><strong>搜尋結果保固狀態：</strong>
+          ${inWarranty} 筆保固中、${w.length-inWarranty} 筆已過保。客人拿回來先看這個。</div></div>`;
+    }
+  }
   if (!shown.length){
     board.innerHTML = `<div class="empty" style="margin-top:20px">這個條件下沒有工單。按右下「接單」開一張新的。</div>`;
   } else {
-    const lateOnes = shown.filter(o => o.late);
-    const readyOnes = shown.filter(o => !o.late && o.status === 'ready');
+    const staleOnes = shown.filter(o => pickupOverdue(o));
+    const lateOnes = shown.filter(o => o.late && !pickupOverdue(o));
+    const readyOnes = shown.filter(o => !o.late && !pickupOverdue(o) && o.status === 'ready');
     const working = shown.filter(o => !o.late && ['intake','quoted','repair'].includes(o.status));
     const closed = shown.filter(o => ['done','lost'].includes(o.status));
     let html = '';
+    if (staleOnes.length) html += section(`放超過 ${READY_OVERDUE_DAYS} 天沒取，催一下`, staleOnes.length, staleOnes.map(orderCard).join(''));
     if (lateOnes.length)  html += section('逾期，先處理', lateOnes.length, lateOnes.map(orderCard).join(''));
     if (readyOnes.length) html += section('待取件，可通知', readyOnes.length, readyOnes.map(orderCard).join(''));
     if (working.length)   html += section('店內處理中', working.length, working.map(orderCard).join(''));
@@ -807,6 +984,41 @@ function renderOrderView(orders){
   document.getElementById('footer').innerHTML = `
     <div>接單流程：待檢測 → 報價中 → 維修中 → 待取件 → 已完成。每張單按綠色按鈕推進下一階段，客戶不修就按「未成交」。</div>
     <div>畫面每 60 秒自動重讀資料並更新逾期狀態；${API.on ? '工單存在這台電腦的 data.db，同一個區網的其他裝置連得到這台就能共用。' : store.db ? '工單存在雲端，換手機或平板都看得到同一份。' : '目前存在這台裝置的瀏覽器裡。'}</div>`;
+}
+
+/* ---------- v2 工具 ---------- */
+const READY_OVERDUE_DAYS = 7;
+
+function warrantyState(o){
+  if (!o.warranty_until) return null;
+  const end = new Date(o.warranty_until);
+  if (isNaN(end)) return null;
+  const days = Math.ceil((end - Date.now()) / 86400000);
+  return days >= 0
+    ? {ok:true,  days, text:`保固中（剩 ${days} 天）`}
+    : {ok:false, days, text:`已過保（${end.getFullYear()}/${end.getMonth()+1}/${end.getDate()} 到期）`};
+}
+function warrantyBadge(o){
+  const w = warrantyState(o);
+  if (!w) return '';
+  return `<span class="wbadge ${w.ok?'on':'off'}">${w.text}</span>`;
+}
+function marginOf(o){
+  const rev = (o.paid || o.quote || 0), cost = (o.cost || 0);
+  return {value: rev - cost, rate: rev ? Math.round((rev-cost)/rev*100) : 0};
+}
+function marginClass(m, rev){
+  if (m < 0) return 'bad';
+  return rev && (m / rev) < 0.3 ? 'warn' : 'good';
+}
+/* ready 超過 N 天沒取件 */
+function pickupOverdue(o){
+  if (o.status !== 'ready' || !o.ready_at) return 0;
+  const d = Math.floor((Date.now() - new Date(o.ready_at)) / 86400000);
+  return d >= READY_OVERDUE_DAYS ? d : 0;
+}
+function lowParts(){
+  return [...store.parts.values()].filter(p => (p.qty||0) <= (p.low_at||1));
 }
 
 /* 已經走過的階段，各自蓋的實際時間 */
@@ -826,12 +1038,47 @@ function timeline(o){
   </div>`;
 }
 
+/* 現況照片縮圖列 */
+function photoStrip(o){
+  const list = parseList(o.intake_photos);
+  if (!list.length) return '';
+  return `<div class="photos">${list.map((n,i) =>
+    `<img class="pt" src="${photoUrl(n)}" alt="現況照片 ${i+1}" data-big="${esc(n)}" loading="lazy">`
+  ).join('')}<span class="pt-n">${list.length} 張現況照</span></div>`;
+}
+
+/* 收機檢查表摘要 */
+function intakeFacts(o){
+  const acc = parseList(o.accessories);
+  const bits = [
+    o.imei ? `<span>IMEI <b class="mono">${esc(o.imei)}</b></span>` : '',
+    o.unlock ? `<span>密碼 <b>${esc(o.unlock)}</b></span>` : '',
+    acc.length ? `<span>配件 <b>${acc.map(esc).join('、')}</b></span>` : '',
+  ].filter(Boolean);
+  return bits.length ? `<div class="o-facts intake">${bits.join('')}</div>` : '';
+}
+
+/* 一眼看出：免責簽了沒、資料重不重要、保固、逾期未取 */
+function badges(o){
+  const b = [];
+  const risky = needsDisclaimer(o);
+  if (o.disclaimer_ok) b.push('<span class="bdg ok">免責已簽</span>');
+  else if (risky) b.push('<span class="bdg danger">免責未簽</span>');
+  if (o.data_critical) b.push('<span class="bdg warn">資料重要</span>');
+  if (o.backed_up) b.push('<span class="bdg">已備份</span>');
+  const w = warrantyState(o);
+  if (w) b.push(`<span class="bdg ${w.ok?'ok':'muted'}">${w.text}</span>`);
+  const d = pickupOverdue(o);
+  if (d) b.push(`<span class="bdg danger">放 ${d} 天沒取</span>`);
+  return b.length ? `<div class="bdgs">${b.join('')}</div>` : '';
+}
+
 function orderCard(o){
   const st = OSTATUS[o.status] || OSTATUS.intake;
   const due = o.due_at ? dueTime(o.due_at) : null;
   const tel = (o.phone||'').replace(/[^0-9+]/g,'');
   return `
-  <article class="order s-${o.status} ${o.late?'late':''}" data-oid="${o.id}">
+  <article class="order s-${o.status} ${o.late?'late':''} ${pickupOverdue(o)?'stale':''}" data-oid="${o.id}">
     <div class="stripe"></div>
     <div class="o-body">
       <div class="o-top">
@@ -841,6 +1088,7 @@ function orderCard(o){
         </div>
         <span class="o-pill">${st.label}</span>
       </div>
+      ${badges(o)}
       <div class="intake-line">
         <span class="il-k">顧客送修</span>
         <span class="il-v mono">${stamp(o.created_at)}</span>
@@ -848,12 +1096,20 @@ function orderCard(o){
       </div>
       <div class="o-device">${esc(o.device||'未填機型')}</div>
       ${o.symptom?`<p class="o-symptom">${esc(o.symptom)}</p>`:''}
+      ${photoStrip(o)}
+      ${intakeFacts(o)}
       <div class="o-facts">
         ${o.quote?`<span>報價 <b>${money(o.quote)}</b></span>`:'<span>尚未報價</span>'}
+        ${o.cost?`<span>成本 <b>${money(o.cost)}</b></span>`:''}
+        ${(o.quote||o.cost)?(()=>{const m=marginOf(o);const rev=o.paid||o.quote||0;
+          return `<span>毛利 <b class="mg ${marginClass(m.value,rev)}">${money(m.value)}</b>${rev?` <span class="mg-r">${m.rate}%</span>`:''}</span>`;})():''}
+        ${o.deposit?`<span>訂金 <b>${money(o.deposit)}</b></span>`:''}
         ${o.paid?`<span>實收 <b>${money(o.paid)}</b></span>`:''}
         ${due?`<span class="${due.late?'late-txt':''}">${o.status==='done'||o.status==='lost'?'':'預計 '+due.txt}</span>`:''}
         ${o.source?`<span class="tag src">${esc(o.source)}</span>`:''}
       </div>
+      ${o.status==='ready'&&o.deposit?`<div class="o-facts"><span class="owe">尚需收款 <b class="mono">${money(Math.max(0,(o.quote||0)-(o.deposit||0)))}</b></span></div>`:''}
+      ${o.picked_by?`<div class="o-facts"><span>取件人 <b>${esc(o.picked_by)}</b>　${stamp(o.picked_at)}</span></div>`:''}
       ${timeline(o)}
       ${o.note?`<div class="o-facts"><span>備註：${esc(o.note)}</span></div>`:''}
       <div class="o-actions">
@@ -861,12 +1117,110 @@ function orderCard(o){
         ${o.status==='ready'?`<button class="btn sm" data-oact="notify" data-oid="${o.id}">取件通知</button>`:''}
         ${o.status==='quoted'?`<button class="btn sm" data-oact="quotemsg" data-oid="${o.id}">報價話術</button>`:''}
         <button class="btn ghost sm" data-oact="edit" data-oid="${o.id}">編輯</button>
+        <button class="btn ghost sm" data-oact="label" data-oid="${o.id}">列印標籤</button>
         ${['done','lost'].includes(o.status)?'':`<button class="btn ghost sm" data-oact="lost" data-oid="${o.id}">未成交</button>`}
         ${o.demo?'':`<button class="btn ghost sm" data-oact="del" data-oid="${o.id}">刪除</button>`}
       </div>
       <div class="slot-msg"></div>
     </div>
   </article>`;
+}
+
+/* ---------- 料件 ---------- */
+function renderPartsView(){
+  const parts = [...store.parts.values()].sort((a,b) => (a.name||'').localeCompare(b.name||'', 'zh-Hant'));
+  const low = lowParts();
+  const value = parts.reduce((s,p) => s + (p.qty||0)*(p.cost||0), 0);
+
+  document.getElementById('notices').innerHTML = parts.length ? '' :
+    `<div class="notice"><span>◆</span><div><strong>還沒有料件。</strong>把常換的螢幕、電池、尾插建進來，
+      開單時點一下就能帶入成本，庫存少了也會提醒你叫料。</div></div>`;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><span class="k">料件種類</span><span class="v">${parts.length}</span><span class="n">建在系統裡的品項</span></div>
+    <div class="stat"><span class="k">總片數</span><span class="v">${parts.reduce((s,p)=>s+(p.qty||0),0)}</span><span class="n">手上所有庫存</span></div>
+    <div class="stat ${low.length?'alert':''}"><span class="k">要叫料</span><span class="v">${low.length}</span><span class="n">低於安全存量</span></div>
+    <div class="stat"><span class="k">庫存金額</span><span class="v">${money(value)}</span><span class="n">數量 × 成本</span></div>`;
+
+  document.getElementById('filters').innerHTML =
+    `<div class="searchrow"><input type="search" id="q" placeholder="搜尋料件名稱…" value="${esc(state.q)}" autocomplete="off"></div>`;
+  bindSearch();
+
+  const shown = parts.filter(p => !state.q || normalize(p.name + ' ' + (p.note||'')).includes(normalize(state.q)));
+  const board = document.getElementById('board');
+  if (!shown.length){
+    board.innerHTML = `<div class="empty" style="margin-top:20px">${parts.length ? '找不到這個料件。' : '按右下「＋ 料件」建立第一筆。'}</div>`;
+  } else {
+    const lowOnes = shown.filter(p => (p.qty||0) <= (p.low_at||1));
+    const rest = shown.filter(p => (p.qty||0) > (p.low_at||1));
+    let html = '';
+    if (lowOnes.length) html += section('要叫料了', lowOnes.length, lowOnes.map(partCard).join(''));
+    if (rest.length) html += section('庫存充足', rest.length, rest.map(partCard).join(''));
+    board.innerHTML = html;
+  }
+
+  document.getElementById('footer').innerHTML = `
+    <div>這裡只管「常換的那幾樣」，不是完整倉管。開單時在報價旁點料件就會帶入成本，推到「維修中」時會問你要不要扣一片。</div>
+    <div>安全存量是自己設的，低於它就會在接單頁頂端提醒。</div>`;
+}
+
+function partCard(p){
+  const low = (p.qty||0) <= (p.low_at||1);
+  return `<article class="part ${low?'low':''}" data-pid2="${esc(p.id)}">
+    <div class="pt-main">
+      <div class="pt-name">${esc(p.name||'未命名')}</div>
+      <div class="o-facts">
+        <span>成本 <b class="mono">${money(p.cost||0)}</b></span>
+        <span>安全存量 <b class="mono">${p.low_at||1}</b></span>
+        ${p.note?`<span>${esc(p.note)}</span>`:''}
+        ${p.updated_at?`<span>更新 ${stamp(p.updated_at)}</span>`:''}
+      </div>
+    </div>
+    <div class="pt-qty">
+      <button class="qbtn" data-qty="-1" data-id="${esc(p.id)}" aria-label="減一">−</button>
+      <span class="qn mono ${low?'low':''}">${p.qty||0}</span>
+      <button class="qbtn" data-qty="1" data-id="${esc(p.id)}" aria-label="加一">＋</button>
+    </div>
+    <div class="pt-acts">
+      <button class="btn ghost sm" data-pact2="edit" data-id="${esc(p.id)}">編輯</button>
+      <button class="btn ghost sm" data-pact2="del" data-id="${esc(p.id)}">刪除</button>
+    </div>
+  </article>`;
+}
+
+function partSheet(seed){
+  const editing = !!(seed && seed.id);
+  const p = Object.assign({name:'', qty:0, cost:0, low_at:1, note:''}, seed || {});
+  const bg = openSheet(`
+    <h2>${editing ? '編輯料件' : '新增料件'}</h2>
+    <p class="hint">只建常換的那幾樣就好，不用把整間店的料都輸進來。</p>
+    <div class="field"><label>名稱</label>
+      <input id="pt_name" value="${esc(p.name)}" placeholder="iPhone 13 螢幕總成（副廠）"></div>
+    <div class="row3">
+      <div class="field"><label>目前數量</label><input id="pt_qty" type="number" inputmode="numeric" value="${p.qty||0}"></div>
+      <div class="field"><label>單片成本</label><input id="pt_cost" type="number" inputmode="numeric" value="${p.cost||0}"></div>
+      <div class="field"><label>剩幾片要叫</label><input id="pt_low" type="number" inputmode="numeric" value="${p.low_at||1}"></div>
+    </div>
+    <div class="field"><label>備註</label><input id="pt_note" value="${esc(p.note)}" placeholder="哪家叫的 / 到貨要幾天"></div>
+    <div class="sheet-actions">
+      <button class="btn" data-close>取消</button>
+      <button class="btn primary" id="pt_save">${editing?'儲存':'建立'}</button>
+    </div>`);
+  bg.querySelector('[data-close]').onclick = () => bg.remove();
+  bg.querySelector('#pt_save').onclick = () => {
+    const v = id => (bg.querySelector('#'+id).value || '').trim();
+    if (!v('pt_name')){ toast('至少要有名稱'); return; }
+    store.savePart({
+      id: editing ? p.id : 'pt'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+      name: v('pt_name'),
+      qty: parseInt(v('pt_qty'),10) || 0,
+      cost: parseInt(v('pt_cost'),10) || 0,
+      low_at: parseInt(v('pt_low'),10) || 1,
+      note: v('pt_note'),
+    });
+    bg.remove(); state.view = 'parts'; render();
+    toast(editing ? '已儲存' : '料件已建立');
+  };
 }
 
 /* ---------- 雷達看板 ---------- */
@@ -970,6 +1324,73 @@ function renderRadarView(posts){
     <div>匯入格式：<code>[{title, body, source, url, author, posted_at}]</code>，以 url 去重。談成的線索按「轉成工單」直接進接單流程。</div>`;
 }
 
+/* ---------- 線索的聯絡方式 ----------
+   店家看到需求後第一件事是「怎麼找到這個人」，所以把能聯絡的管道全部抓出來擺在最上面。 */
+const RE_PHONE = /(?:^|[^0-9])(09\d{2}[-\s]?\d{3}[-\s]?\d{3})(?![0-9])/g;
+const RE_LINE  = /(?:line|LINE|賴|line\s*id|加我)[\s:：@]*([A-Za-z0-9_.\-]{4,30})/g;
+const RE_IG    = /(?:ig|IG|instagram)[\s:：@]*([A-Za-z0-9_.]{3,30})/g;
+const RE_EMAIL = /([A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,})/g;
+
+function grab(re, text){
+  const out = [];
+  let m; re.lastIndex = 0;
+  while ((m = re.exec(text)) !== null){
+    const v = (m[1] || '').trim();
+    if (v && !out.includes(v)) out.push(v);
+    if (out.length >= 3) break;
+  }
+  return out;
+}
+
+function contactsOf(p){
+  const text = (p.title || '') + '\n' + (p.body || '');
+  const rows = [];
+
+  // 1. 來源本身的帳號 —— 最可靠的一條
+  if (p.source && p.source.indexOf('PTT') === 0){
+    rows.push({k:'PTT 帳號', v:p.author, copy:p.author,
+               link:`https://www.ptt.cc/bbs/${(p.board||'')}/index.html`, how:'在原文推文或站內信'});
+  } else if (p.source && p.source.indexOf('IG') === 0){
+    rows.push({k:'IG 帳號', v:p.author, copy:p.author,
+               link:p.author && p.author !== '（未提供名稱）' ? `https://www.instagram.com/${p.author}/` : '',
+               how: p.direct ? '直接回私訊' : '在留言下回覆或私訊'});
+  } else if (p.source && p.source.indexOf('FB') === 0){
+    rows.push({k:'FB 名稱', v:p.author, copy:p.author,
+               link:'https://business.facebook.com/latest/inbox',
+               how: p.direct ? '直接回私訊' : '在留言下回覆'});
+  } else if (p.author && p.author !== '—'){
+    rows.push({k:'發文者', v:p.author, copy:p.author, how:'在原文回覆'});
+  }
+
+  // 2. 對方自己留在內文的聯絡方式
+  grab(RE_PHONE, text).forEach(v => rows.push({k:'電話', v:v.replace(/[-\s]/g,''),
+    copy:v.replace(/[-\s]/g,''), tel:true, how:'直接打過去'}));
+  grab(RE_LINE, text).forEach(v => rows.push({k:'LINE ID', v, copy:v, how:'加好友'}));
+  grab(RE_IG, text).forEach(v => rows.push({k:'IG', v, copy:v,
+    link:`https://www.instagram.com/${v}/`, how:'私訊'}));
+  grab(RE_EMAIL, text).forEach(v => rows.push({k:'Email', v, copy:v, how:'寄信'}));
+
+  return rows;
+}
+
+function contactBlock(p){
+  const rows = contactsOf(p);
+  if (!rows.length) return '';
+  return `<div class="contact">
+    <div class="contact-head">怎麼聯絡這位客人</div>
+    ${rows.map((r,i) => `<div class="contact-row">
+      <span class="ct-k">${esc(r.k)}</span>
+      <span class="ct-v">${r.tel ? `<a href="tel:${esc(r.v)}">${esc(r.v)}</a>`
+        : r.link ? `<a href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.v)}</a>`
+        : esc(r.v)}</span>
+      <span class="ct-acts">
+        <button class="btn ghost sm" data-ctcopy="${esc(r.copy||r.v)}">複製</button>
+        ${r.tel ? `<a class="btn sm" href="tel:${esc(r.v)}">撥號</a>` : ''}
+      </span>
+    </div>`).join('')}
+  </div>`;
+}
+
 function postCard(p){
   const tv = threshold().value === Infinity ? 70 : threshold().value;
   const tier = (p.direct || p.score >= tv) ? 'hot' : p.score >= 50 ? 'warm' : p.score >= 30 ? 'cool' : 'cold';
@@ -988,6 +1409,7 @@ function postCard(p){
     <div class="pbody">
       <div class="meta"><span class="src">${esc(p.source)}</span><span class="sep">·</span><span>${esc(p.author||'—')}</span><span class="sep">·</span><span title="${stamp(p.posted_at)}">${relTime(p.posted_at)}</span><span class="sep">·</span><span class="mono">${stamp(p.posted_at)}</span></div>
       <h3>${p.url&&p.url!=='#'?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.title)}</a>`:esc(p.title)}</h3>
+      ${contactBlock(p)}
       <p class="excerpt">${esc(p.body)}</p>
       ${tags?`<div class="tags">${tags}</div>`:''}
       <div class="rowactions">
@@ -1023,6 +1445,125 @@ function toast(msg){
   clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'), 2000);
 }
 function findOrder(id){ return allOrders().find(o => o.id === id); }
+
+/* 推進到下一階段。免責、扣料、取件人這三道關卡都在這裡。 */
+async function advanceStage(raw){
+  const nx = OSTATUS[raw.status] && OSTATUS[raw.status].next;
+  if (!nx) return;
+
+  // 關卡一：高風險維修沒簽免責，不准開修
+  if (nx === 'repair' && needsDisclaimer(raw) && !raw.disclaimer_ok){
+    blockSheet(raw);
+    return;
+  }
+
+  // 關卡二：有綁料件就問要不要扣庫存（實務上常臨時換料，不自動扣）
+  if (nx === 'repair' && raw.part_id && store.parts.get(raw.part_id)){
+    const p = store.parts.get(raw.part_id);
+    const yes = await confirmSheet('要扣庫存嗎？',
+      `這張單綁了「${esc(p.name)}」，目前庫存 ${p.qty||0} 片。`,
+      '扣 1 片', '不扣，我換別的料');
+    if (yes) { await store.takePart(raw.part_id, 1); toast(`${p.name} 已扣 1 片，剩 ${store.parts.get(raw.part_id).qty} 片`); }
+  }
+
+  // 關卡三：取件要簽收
+  if (nx === 'done'){
+    const who = await pickupSheet(raw);
+    if (who === null) return;              // 取消
+    raw.picked_by = who;
+    raw.picked_at = new Date().toISOString();
+  }
+
+  raw.status = nx;
+  const field = STAGE_STAMP[nx];
+  if (field) raw[field] = new Date().toISOString();
+  if (nx === 'done'){
+    if (!raw.paid) raw.paid = raw.quote || 0;
+    const days = parseInt(raw.warranty_days, 10) || store.settings.default_warranty_days || 90;
+    raw.warranty_days = days;
+    raw.warranty_until = new Date(Date.now() + days*86400000).toISOString();
+  }
+  store.saveOrder(raw);
+  render();
+  const w = nx === 'done' ? `，保固到 ${stamp(raw.warranty_until).split('（')[0]}` : '';
+  toast((nx === 'ready' ? '已轉待取件，記得通知客戶' : '已更新為 '+OSTATUS[nx].label)
+        + '（' + stamp(raw[field]) + '）' + w);
+}
+
+/* 通用確認視窗 */
+function confirmSheet(title, body, yesLabel, noLabel){
+  return new Promise(resolve => {
+    const bg = openSheet(`
+      <h2>${title}</h2>
+      <p class="hint">${body}</p>
+      <div class="sheet-actions">
+        <button class="btn" data-no>${noLabel}</button>
+        <button class="btn primary" data-yes>${yesLabel}</button>
+      </div>`);
+    bg.querySelector('[data-no]').onclick = () => { bg.remove(); resolve(false); };
+    bg.querySelector('[data-yes]').onclick = () => { bg.remove(); resolve(true); };
+    bg.addEventListener('click', e => { if (e.target === bg) resolve(false); });
+  });
+}
+
+/* 免責未簽，擋下來 */
+function blockSheet(raw){
+  const bg = openSheet(`
+    <h2>還不能開修</h2>
+    <p class="hint">這張單是「${esc((raw.symptom||raw.device||'').slice(0,20))}」，屬於高風險維修。</p>
+    <div class="notice hot" style="margin:0 0 14px"><span>◆</span><div>
+      免責事項還沒簽。修下去要是資料救不回來或修不好，你沒有東西可以拿出來。
+    </div></div>
+    <label class="chk disclaimer required"><input type="checkbox" id="b_disc"><span>${DISCLAIMER_TEXT}</span></label>
+    <div class="sheet-actions">
+      <button class="btn" data-close>先不修</button>
+      <button class="btn primary" id="b_go" disabled>客戶已同意，開修</button>
+    </div>`);
+  const cb = bg.querySelector('#b_disc'), go = bg.querySelector('#b_go');
+  cb.onchange = () => { go.disabled = !cb.checked; };
+  bg.querySelector('[data-close]').onclick = () => bg.remove();
+  go.onclick = () => {
+    raw.disclaimer_ok = 1;
+    raw.disclaimer_at = new Date().toISOString();
+    store.saveOrder(raw);
+    bg.remove();
+    advanceStage(raw);
+  };
+}
+
+/* 取件簽收 */
+function pickupSheet(raw){
+  return new Promise(resolve => {
+    const owe = Math.max(0, (raw.quote||0) - (raw.deposit||0));
+    const bg = openSheet(`
+      <h2>取件簽收</h2>
+      <p class="hint">${esc(raw.no)}　${esc(raw.device||'')}</p>
+      ${raw.deposit ? `<div class="notice" style="margin:0 0 12px"><span>◆</span><div>
+        報價 ${money(raw.quote||0)}，已收訂金 ${money(raw.deposit)}，<strong>尚需收 ${money(owe)}</strong>。
+      </div></div>` : ''}
+      <div class="field"><label>取件人</label>
+        <input id="pk_who" value="${esc(raw.customer||'')}" placeholder="客戶本人或代領人">
+        <span class="fhint">不是本人來拿就改掉，例如「客戶友人 王小姐」。</span>
+      </div>
+      <div class="field"><label>實收金額</label>
+        <input id="pk_paid" type="number" inputmode="numeric" value="${raw.paid || raw.quote || 0}">
+      </div>
+      <div class="sheet-actions">
+        <button class="btn" data-close>取消</button>
+        <button class="btn go" id="pk_ok">確認取件</button>
+      </div>`);
+    let done = false;
+    bg.querySelector('[data-close]').onclick = () => { done = true; bg.remove(); resolve(null); };
+    bg.addEventListener('click', e => { if (e.target === bg && !done){ done = true; resolve(null); } });
+    bg.querySelector('#pk_ok').onclick = () => {
+      done = true;
+      raw.paid = parseInt(bg.querySelector('#pk_paid').value, 10) || raw.quote || 0;
+      const who = (bg.querySelector('#pk_who').value || '').trim() || raw.customer || '—';
+      bg.remove();
+      resolve(who);
+    };
+  });
+}
 function findPost(id){ return allPosts().find(p => p.id === id); }
 function msgBox(text, id){
   return `<div class="o-note" style="margin-top:8px">${esc(text)}<div class="na">
@@ -1050,6 +1591,42 @@ document.addEventListener('click', e => {
   }
   if (e.target.closest('[data-closemsg]')){ e.target.closest('.slot-msg').innerHTML = ''; return; }
 
+  /* 複製聯絡方式 */
+  const cc = e.target.closest('[data-ctcopy]');
+  if (cc){
+    navigator.clipboard.writeText(cc.dataset.ctcopy).then(
+      () => toast('已複製 ' + cc.dataset.ctcopy),
+      () => toast('複製失敗，請長按選取'));
+    return;
+  }
+
+  /* 照片點開看大圖 */
+  const big = e.target.closest('[data-big]');
+  if (big){
+    const lb = document.createElement('div');
+    lb.className = 'lightbox';
+    lb.innerHTML = `<button class="lb-x" aria-label="關閉">×</button><img src="${photoUrl(big.dataset.big)}" alt="現況照片">`;
+    lb.addEventListener('click', () => lb.remove());
+    document.body.appendChild(lb);
+    return;
+  }
+
+  /* 料件增減 */
+  const qb = e.target.closest('[data-qty]');
+  if (qb){
+    const p = store.parts.get(qb.dataset.id); if (!p) return;
+    p.qty = Math.max(0, (p.qty||0) + (+qb.dataset.qty));
+    store.savePart(p); render();
+    return;
+  }
+  const pa2 = e.target.closest('[data-pact2]');
+  if (pa2){
+    const p = store.parts.get(pa2.dataset.id); if (!p) return;
+    if (pa2.dataset.pact2 === 'edit') partSheet(p);
+    else { store.removePart(p.id); render(); toast('料件已刪除'); }
+    return;
+  }
+
   /* 工單動作 */
   const oa = e.target.closest('[data-oact]');
   if (oa){
@@ -1059,14 +1636,7 @@ document.addEventListener('click', e => {
     const act = oa.dataset.oact;
 
     if (act === 'next'){
-      const nx = OSTATUS[raw.status].next; if (!nx) return;
-      raw.status = nx;
-      const field = STAGE_STAMP[nx];
-      if (field) raw[field] = new Date().toISOString();   // 自動記下這一刻
-      if (nx === 'done' && !raw.paid) raw.paid = raw.quote || 0;
-      store.saveOrder(raw); render();
-      toast((nx === 'ready' ? '已轉待取件，記得通知客戶' : '已更新為 '+OSTATUS[nx].label)
-            + '（' + stamp(raw[field]) + '）');
+      advanceStage(raw);
       return;
     }
     if (act === 'lost'){
@@ -1076,6 +1646,7 @@ document.addEventListener('click', e => {
     }
     if (act === 'del'){ store.removeOrder(o.id); render(); toast('工單已刪除'); return; }
     if (act === 'edit'){ orderSheet(o); return; }
+    if (act === 'label'){ printLabel(o); return; }
     if (act === 'notify' || act === 'quotemsg'){
       const slot = oa.closest('.o-body').querySelector('.slot-msg');
       if (slot.innerHTML){ slot.innerHTML = ''; return; }
@@ -1152,35 +1723,156 @@ function openSheet(html){
 }
 
 /* ---------- 接單 / 編輯工單 ---------- */
+const ACCESSORIES = ['充電線','充電頭','保護殼','保護貼','SIM 卡','記憶卡','原廠盒','耳機','筆','鍵盤保護套'];
+const DISCLAIMER_TEXT = '已向客戶告知：泡水機與主機板維修不保證修復成功，維修過程中機內資料有遺失可能，客戶已知悉並同意送修。';
+const DISCLAIMER_TRIGGERS = ['泡水','進水','主機板','開不了機','無法開機'];
+
+/* 這張單的故障是否屬於高風險，需要先簽免責才能開修 */
+function needsDisclaimer(o){
+  const t = ((o.symptom||'') + ' ' + (o.device||''));
+  return DISCLAIMER_TRIGGERS.some(w => t.includes(w));
+}
+
+function parseList(v){
+  if (Array.isArray(v)) return v;
+  try { const a = JSON.parse(v || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; }
+}
+
+/* 選檔後在瀏覽器端縮到最長邊 1280、JPEG 0.7 再上傳，免得硬碟被原圖塞爆 */
+function shrinkImage(file, maxEdge, quality){
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error('讀取檔案失敗'));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('這個檔案不是圖片'));
+      img.onload = () => {
+        const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+        const cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(img.width * scale));
+        cv.height = Math.max(1, Math.round(img.height * scale));
+        const cx = cv.getContext('2d');
+        cx.fillStyle = '#fff';
+        cx.fillRect(0, 0, cv.width, cv.height);
+        cx.drawImage(img, 0, 0, cv.width, cv.height);
+        resolve(cv.toDataURL('image/jpeg', quality));
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+async function uploadPhoto(orderId, dataUrl){
+  if (!API.on) return {ok:false, msg:'照片需要本機伺服器版才存得住'};
+  const r = await fetch('/api/photo', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({order_id: orderId, data: dataUrl}),
+  });
+  return r.json();
+}
+
+function photoUrl(name){ return '/photos/' + encodeURIComponent(name); }
+
+/* ---------- 開單 / 編輯工單 ---------- */
 function orderSheet(seed){
   const editing = seed && seed.id && !seed.demo;
   const o = Object.assign({
-    customer:'', phone:'', device:'', symptom:'', quote:'', paid:'',
-    source:'現場', status:'intake', note:'', due_h:24, lead_url:'', lead_id:'',
+    customer:'', phone:'', device:'', symptom:'', quote:'', paid:'', cost:'', deposit:'',
+    source:'現場', status:'intake', note:'', lead_url:'', lead_id:'',
+    imei:'', unlock:'', accessories:'[]', backed_up:0, data_critical:0,
+    intake_photos:'[]', disclaimer_ok:0, disclaimer_at:null,
+    warranty_days: store.settings.default_warranty_days || 90, part_id:'',
   }, seed || {});
+  const oid = editing ? o.id : 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
   const dueHours = o.due_at ? Math.max(1, Math.round((new Date(o.due_at)-Date.now())/3600000)) : 24;
+  let acc = parseList(o.accessories);
+  let photos = parseList(o.intake_photos);
+
+  const parts = [...store.parts.values()];
 
   const bg = openSheet(`
     <h2>${editing ? '編輯工單 '+esc(o.no) : '新工單'}</h2>
-    <p class="hint">${editing ? '改完按儲存。' : '客戶站在櫃檯前，先填姓名電話跟機型，其他之後補。'}</p>
+    <p class="hint">${editing ? '改完按儲存。' : '客戶站在櫃檯前：先拍照，再填姓名電話跟機型。'}</p>
+
     <div class="row2">
       <div class="field"><label>客戶姓名</label><input id="f_customer" value="${esc(o.customer)}" placeholder="林小姐"></div>
       <div class="field"><label>電話</label><input id="f_phone" type="tel" inputmode="numeric" value="${esc(o.phone)}" placeholder="0912345678"></div>
     </div>
+    <div id="f_history"></div>
+
     <div class="field">
       <label>顧客送修的日期與時間</label>
       <input id="f_created" type="datetime-local" value="${toLocalInput(o.created_at)}">
-      <span style="font-size:11.5px;color:var(--text-3)">已自動填現在時間。客人昨天送來今天才開單，改這裡就好。</span>
+      <span class="fhint">已自動填現在時間。客人昨天送來今天才開單，改這裡就好。</span>
     </div>
+
     <div class="field"><label>機型</label><input id="f_device" value="${esc(o.device)}" placeholder="iPhone 14"></div>
-    <div class="quickpick" style="margin-bottom:11px">${COMMON_DEVICES.map(d=>`<button type="button" data-fill="f_device" data-val="${esc(d)}">${esc(d)}</button>`).join('')}</div>
-    <div class="field"><label>故障狀況</label><textarea id="f_symptom" placeholder="客戶怎麼說的，越具體越好">${esc(o.symptom)}</textarea></div>
-    <div class="quickpick" style="margin-bottom:11px">${COMMON_SYMPTOMS.map(s=>`<button type="button" data-append="f_symptom" data-val="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+    <div class="quickpick">${COMMON_DEVICES.map(d=>`<button type="button" data-fill="f_device" data-val="${esc(d)}">${esc(d)}</button>`).join('')}</div>
+
+    <div class="field" style="margin-top:11px"><label>故障狀況</label><textarea id="f_symptom" placeholder="客戶怎麼說的，越具體越好">${esc(o.symptom)}</textarea></div>
+    <div class="quickpick">${COMMON_SYMPTOMS.map(s=>`<button type="button" data-append="f_symptom" data-val="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+
+    <div class="sec">收機檢查</div>
+
+    <div class="field">
+      <label>現況照片${API.on ? '' : '（需要本機伺服器版）'}</label>
+      <div class="photo-box">
+        <div class="photo-grid" id="f_photos"></div>
+        <label class="photo-add ${API.on ? '' : 'off'}">
+          <input type="file" id="f_photofile" accept="image/*" capture="environment" multiple ${API.on ? '' : 'disabled'} hidden>
+          <span>＋ 拍照／選圖</span>
+        </label>
+        <span class="fhint" id="f_photohint">收機前先拍：正面、背面、開機畫面。爭議時這是唯一的證據。</span>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field"><label>IMEI／序號</label><input id="f_imei" value="${esc(o.imei)}" inputmode="numeric" placeholder="長按撥號鍵盤輸入 *#06#"></div>
+      <div class="field"><label>開機密碼／圖形</label><input id="f_unlock" value="${esc(o.unlock)}" placeholder="1234 或 L 型由左上"></div>
+    </div>
+
+    <div class="field">
+      <label>一起收的配件</label>
+      <div class="quickpick" id="f_acc">
+        ${ACCESSORIES.map(a=>`<button type="button" data-acc="${esc(a)}" class="${acc.includes(a)?'on':''}">${esc(a)}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="checks">
+      <label class="chk"><input type="checkbox" id="f_backed" ${o.backed_up?'checked':''}><span>客戶已自行備份</span></label>
+      <label class="chk"><input type="checkbox" id="f_critical" ${o.data_critical?'checked':''}><span>機內資料重要（泡水機必問）</span></label>
+    </div>
+
+    <label class="chk disclaimer ${o.disclaimer_ok?'signed':''}" id="f_disc_wrap">
+      <input type="checkbox" id="f_disclaimer" ${o.disclaimer_ok?'checked':''}>
+      <span>${DISCLAIMER_TEXT}</span>
+    </label>
+    <div class="fhint" id="f_disc_hint"></div>
+
+    <div class="sec">金額與保固</div>
+
+    ${parts.length ? `<div class="field">
+      <label>用哪個料件（點一下帶入成本）</label>
+      <div class="quickpick" id="f_parts">
+        ${parts.map(p=>`<button type="button" data-part="${esc(p.id)}" data-cost="${p.cost||0}"
+           class="${o.part_id===p.id?'on':''} ${(p.qty||0)<=(p.low_at||1)?'low':''}">${esc(p.name)}<span class="pq">${p.qty||0}</span></button>`).join('')}
+      </div>
+    </div>` : ''}
+
     <div class="row3">
       <div class="field"><label>報價</label><input id="f_quote" type="number" inputmode="numeric" value="${o.quote||''}" placeholder="3800"></div>
+      <div class="field"><label>料件成本</label><input id="f_cost" type="number" inputmode="numeric" value="${o.cost||''}" placeholder="1600"></div>
+      <div class="field"><label>已收訂金</label><input id="f_deposit" type="number" inputmode="numeric" value="${o.deposit||''}" placeholder="0"></div>
+    </div>
+    <div class="margin-live" id="f_margin"></div>
+
+    <div class="row3">
       <div class="field"><label>實收</label><input id="f_paid" type="number" inputmode="numeric" value="${o.paid||''}" placeholder="取件時填"></div>
+      <div class="field"><label>保固天數</label><input id="f_warranty" type="number" inputmode="numeric" value="${o.warranty_days||90}"></div>
       <div class="field"><label>幾小時內完成</label><input id="f_due" type="number" inputmode="numeric" value="${dueHours}"></div>
     </div>
+
     <div class="row2">
       <div class="field"><label>來源</label><select id="f_source">
         ${['現場','電話','LINE','網路線索','回頭客'].map(s=>`<option ${o.source===s?'selected':''}>${s}</option>`).join('')}
@@ -1191,29 +1883,155 @@ function orderSheet(seed){
     </div>
     <div class="field"><label>備註</label><input id="f_note" value="${esc(o.note)}" placeholder="料件已叫 / 資料優先 / 客戶趕時間"></div>
     ${o.lead_url?`<div class="field"><label>原始線索</label><input id="f_lead" value="${esc(o.lead_url)}" readonly></div>`:''}
+
     <div class="sheet-actions">
       <button class="btn" data-close>取消</button>
       <button class="btn primary" id="f_save">${editing?'儲存':'建立工單'}</button>
     </div>`);
 
-  bg.querySelectorAll('[data-fill]').forEach(b => b.onclick = () => { bg.querySelector('#'+b.dataset.fill).value = b.dataset.val; });
+  const q = id => bg.querySelector('#'+id);
+  const g = id => (q(id).value || '').trim();
+
+  /* ---- 快選 ---- */
+  bg.querySelectorAll('[data-fill]').forEach(b => b.onclick = () => { q(b.dataset.fill).value = b.dataset.val; syncDisclaimerHint(); });
   bg.querySelectorAll('[data-append]').forEach(b => b.onclick = () => {
-    const ta = bg.querySelector('#'+b.dataset.append);
+    const ta = q(b.dataset.append);
     ta.value = ta.value ? ta.value.replace(/\s*$/,'') + '、' + b.dataset.val : b.dataset.val;
+    syncDisclaimerHint();
   });
+  bg.querySelectorAll('[data-acc]').forEach(b => b.onclick = () => {
+    const v = b.dataset.acc;
+    if (acc.includes(v)){ acc = acc.filter(x => x !== v); b.classList.remove('on'); }
+    else { acc.push(v); b.classList.add('on'); }
+  });
+  bg.querySelectorAll('[data-part]').forEach(b => b.onclick = () => {
+    bg.querySelectorAll('[data-part]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    o.part_id = b.dataset.part;
+    q('f_cost').value = b.dataset.cost;
+    updateMargin();
+  });
+
+  /* ---- 免責提示 ---- */
+  function syncDisclaimerHint(){
+    const risky = needsDisclaimer({symptom:g('f_symptom'), device:g('f_device')});
+    const wrap = q('f_disc_wrap'), hint = q('f_disc_hint');
+    wrap.classList.toggle('required', risky);
+    hint.textContent = risky
+      ? '這張單屬於高風險維修，沒勾這欄就不能推進到「維修中」。'
+      : '一般維修可不勾，但勾了對你比較有保障。';
+    hint.style.color = risky && !q('f_disclaimer').checked ? 'var(--bad)' : 'var(--text-3)';
+  }
+  q('f_symptom').addEventListener('input', syncDisclaimerHint);
+  q('f_device').addEventListener('input', syncDisclaimerHint);
+  q('f_disclaimer').addEventListener('change', () => {
+    q('f_disc_wrap').classList.toggle('signed', q('f_disclaimer').checked);
+    syncDisclaimerHint();
+  });
+  syncDisclaimerHint();
+
+  /* ---- 毛利即時顯示 ---- */
+  function updateMargin(){
+    const quote = parseInt(g('f_quote'),10) || 0;
+    const cost = parseInt(g('f_cost'),10) || 0;
+    const dep = parseInt(g('f_deposit'),10) || 0;
+    const el = q('f_margin');
+    if (!quote && !cost){ el.innerHTML = ''; return; }
+    const m = quote - cost;
+    const rate = quote ? Math.round(m / quote * 100) : 0;
+    const cls = m < 0 ? 'bad' : rate < 30 ? 'warn' : 'good';
+    el.innerHTML = `<span class="ml-k">毛利</span><span class="ml-v ${cls} mono">${money(m)}</span>`
+      + `<span class="ml-r">${quote ? rate + '%' : ''}</span>`
+      + (dep ? `<span class="ml-d">訂金 ${money(dep)}，尚需收 ${money(Math.max(0, quote - dep))}</span>` : '');
+  }
+  ['f_quote','f_cost','f_deposit'].forEach(id => q(id).addEventListener('input', updateMargin));
+  updateMargin();
+
+  /* ---- 客戶歷史 ---- */
+  let histTimer = null, lastPhone = '';
+  async function lookupHistory(){
+    const phone = g('f_phone').replace(/[^0-9+]/g,'');
+    const box = q('f_history');
+    if (phone.length < 8 || phone === lastPhone) { if (phone.length < 8) box.innerHTML = ''; return; }
+    lastPhone = phone;
+    if (!API.on){ box.innerHTML = ''; return; }
+    try {
+      const r = await fetch('/api/history?phone=' + encodeURIComponent(phone)
+                            + (editing ? '&exclude=' + encodeURIComponent(oid) : ''));
+      const d = await r.json();
+      if (!d.count){ box.innerHTML = ''; return; }
+      const rows = d.orders.slice(0, 4).map(h => `<div class="hist-row">
+          <span class="mono">${stamp(h.created_at).split('（')[0]}</span>
+          <span class="hr-dev">${esc(h.device||'—')}</span>
+          <span class="hr-sym">${esc((h.symptom||'').slice(0,14))}</span>
+          <span class="mono hr-amt">$${money(h.paid || h.quote || 0)}</span>
+          <span class="hr-st">${(OSTATUS[h.status]||{}).label||''}</span>
+          ${warrantyBadge(h)}
+        </div>`).join('');
+      const last = d.orders[0];
+      box.innerHTML = `<div class="hist">
+        <div class="hist-head">這位客人來過 ${d.count} 次
+          <button type="button" class="btn sm" id="f_reuse">沿用上次資料</button></div>
+        ${rows}</div>`;
+      const btn = q('f_reuse');
+      if (btn) btn.onclick = () => {
+        if (last.customer && last.customer !== '—') q('f_customer').value = last.customer;
+        if (last.device) q('f_device').value = last.device;
+        toast('已帶入上次的姓名與機型');
+        syncDisclaimerHint();
+      };
+    } catch(e){ box.innerHTML = ''; }
+  }
+  q('f_phone').addEventListener('input', () => {
+    clearTimeout(histTimer); histTimer = setTimeout(lookupHistory, 350);
+  });
+  lookupHistory();
+
+  /* ---- 照片 ---- */
+  function drawPhotos(){
+    const grid = q('f_photos');
+    grid.innerHTML = photos.map((n,i) => `<div class="ph">
+        <img src="${photoUrl(n)}" alt="現況照片 ${i+1}">
+        <button type="button" class="ph-x" data-rm="${i}" title="移除">×</button>
+      </div>`).join('');
+    grid.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => {
+      photos.splice(+b.dataset.rm, 1); drawPhotos();
+    });
+  }
+  drawPhotos();
+  const fileInput = q('f_photofile');
+  if (fileInput) fileInput.addEventListener('change', async e => {
+    const files = [...(e.target.files || [])];
+    e.target.value = '';
+    const hint = q('f_photohint');
+    for (let i = 0; i < files.length; i++){
+      hint.textContent = `處理第 ${i+1}／${files.length} 張…`;
+      try {
+        const dataUrl = await shrinkImage(files[i], 1280, 0.7);
+        const res = await uploadPhoto(oid, dataUrl);
+        if (res.ok){ photos.push(res.filename); drawPhotos(); }
+        else { hint.textContent = '上傳失敗：' + (res.msg || '未知原因'); return; }
+      } catch(err){ hint.textContent = '處理失敗：' + err.message; return; }
+    }
+    hint.textContent = `已存 ${photos.length} 張。收機前先拍：正面、背面、開機畫面。`;
+  });
+
+  /* ---- 儲存 ---- */
   bg.querySelector('[data-close]').onclick = () => bg.remove();
-  bg.querySelector('#f_save').onclick = () => {
-    const g = id => (bg.querySelector('#'+id).value || '').trim();
+  q('f_save').onclick = () => {
     if (!g('f_customer') && !g('f_phone')){ toast('至少要有姓名或電話'); return; }
     const dueH = parseFloat(g('f_due')) || 24;
+    const signed = q('f_disclaimer').checked ? 1 : 0;
     const rec = {
-      id: editing ? o.id : 'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
+      id: oid,
       no: editing ? o.no : store.nextNo(),
       customer: g('f_customer') || '—',
       phone: g('f_phone'),
       device: g('f_device'),
       symptom: g('f_symptom'),
       quote: parseInt(g('f_quote'),10) || 0,
+      cost: parseInt(g('f_cost'),10) || 0,
+      deposit: parseInt(g('f_deposit'),10) || 0,
       paid: parseInt(g('f_paid'),10) || 0,
       source: g('f_source'),
       status: g('f_status'),
@@ -1225,6 +2043,19 @@ function orderSheet(seed){
       repair_at: o.repair_at || null,
       ready_at: o.ready_at || null,
       done_at: o.done_at || null,
+      imei: g('f_imei'),
+      unlock: g('f_unlock'),
+      accessories: JSON.stringify(acc),
+      backed_up: q('f_backed').checked ? 1 : 0,
+      data_critical: q('f_critical').checked ? 1 : 0,
+      intake_photos: JSON.stringify(photos),
+      disclaimer_ok: signed,
+      disclaimer_at: signed ? (o.disclaimer_at || new Date().toISOString()) : null,
+      warranty_days: parseInt(g('f_warranty'),10) || 90,
+      warranty_until: o.warranty_until || null,
+      part_id: o.part_id || '',
+      picked_by: o.picked_by || '',
+      picked_at: o.picked_at || null,
     };
     store.saveOrder(rec);
     if (o.lead_id && store.posts.get(o.lead_id)){
@@ -1240,6 +2071,7 @@ function orderSheet(seed){
 /* ---------- FAB ---------- */
 document.getElementById('fab').addEventListener('click', () => {
   if (state.view === 'orders') orderSheet(null);
+  else if (state.view === 'parts') partSheet(null);
   else postSheet();
 });
 
@@ -1307,6 +2139,77 @@ function sourceSheet(){
     </div>
     <div class="sheet-actions"><button class="btn primary" data-close>知道了</button></div>`);
   bg.querySelector('[data-close]').onclick = () => bg.remove();
+}
+
+/* ---------- 列印標籤 ----------
+   純前端、不連外。Code 39 條碼用 canvas 手畫，任何一般條碼槍都掃得到。
+   （沒有引入 QR 函式庫：離線可用是硬性要求，手刻 QR 編碼器風險高於效益。） */
+const C39 = {
+  '0':'101001101101','1':'110100101011','2':'101100101011','3':'110110010101',
+  '4':'101001101011','5':'110100110101','6':'101100110101','7':'101001011011',
+  '8':'110100101101','9':'101100101101','A':'110101001011','B':'101101001011',
+  'C':'110110100101','D':'101011001011','E':'110101100101','F':'101101100101',
+  'G':'101010011011','H':'110101001101','I':'101101001101','J':'101011001101',
+  'K':'110101010011','L':'101101010011','M':'110110101001','N':'101011010011',
+  'O':'110101101001','P':'101101101001','Q':'101010110011','R':'110101011001',
+  'S':'101101011001','T':'101011011001','U':'110010101011','V':'100110101011',
+  'W':'110011010101','X':'100101101011','Y':'110010110101','Z':'100110110101',
+  '-':'100101011011','.':'110010101101',' ':'100110101101','*':'100101101101',
+};
+function drawCode39(canvas, text){
+  const code = '*' + String(text).toUpperCase().replace(/[^0-9A-Z\-. ]/g,'') + '*';
+  const bars = [...code].map(c => C39[c]).filter(Boolean).join('0');
+  if (!bars) return false;
+  const narrow = 2, h = 70, pad = 12;
+  canvas.width = bars.length * narrow + pad*2;
+  canvas.height = h + pad;
+  const cx = canvas.getContext('2d');
+  cx.fillStyle = '#fff'; cx.fillRect(0,0,canvas.width,canvas.height);
+  cx.fillStyle = '#000';
+  let x = pad;
+  for (const b of bars){
+    if (b === '1') cx.fillRect(x, 4, narrow, h);
+    x += narrow;
+  }
+  return true;
+}
+
+function printLabel(o){
+  const w = window.open('', '_blank', 'width=420,height=560');
+  if (!w){ toast('瀏覽器擋掉了新視窗，請允許彈出視窗'); return; }
+  const link = (API.lanUrl || location.origin) + '/?order=' + encodeURIComponent(o.id);
+  w.document.write(`<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8">
+<title>${esc(o.no)}</title><style>
+  @page{size:auto;margin:8mm}
+  body{font-family:"Noto Sans TC","PingFang TC",system-ui,sans-serif;margin:0;padding:14px;color:#000;background:#fff}
+  .no{font-family:ui-monospace,monospace;font-size:34px;font-weight:800;letter-spacing:.04em;line-height:1.1}
+  .cust{font-size:22px;font-weight:700;margin-top:6px}
+  .dev{font-size:17px;margin-top:2px}
+  .row{font-size:13px;color:#333;margin-top:3px}
+  hr{border:0;border-top:1px dashed #999;margin:11px 0}
+  canvas{display:block;margin-top:4px}
+  .url{font-family:ui-monospace,monospace;font-size:10px;color:#555;word-break:break-all;margin-top:6px}
+  .tip{font-size:11px;color:#666;margin-top:10px}
+  @media print{.tip{display:none}}
+</style></head><body>
+  <div class="no">${esc(o.no)}</div>
+  <div class="cust">${esc(o.customer||'')}　${esc(o.phone||'')}</div>
+  <div class="dev">${esc(o.device||'')}</div>
+  <div class="row">故障：${esc((o.symptom||'').slice(0,40))}</div>
+  <div class="row">收機：${esc(stamp(o.created_at))}</div>
+  ${o.imei?`<div class="row">IMEI：${esc(o.imei)}</div>`:''}
+  ${parseList(o.accessories).length?`<div class="row">配件：${esc(parseList(o.accessories).join('、'))}</div>`:''}
+  <hr>
+  <canvas id="bc"></canvas>
+  <div class="url">${esc(link)}</div>
+  <div class="tip">按 Ctrl/⌘ + P 列印。條碼是單號，一般條碼槍掃得到。</div>
+<script>
+${drawCode39.toString()}
+const C39 = ${JSON.stringify(C39)};
+drawCode39(document.getElementById('bc'), ${JSON.stringify(o.no || '')});
+window.focus();
+<\/script></body></html>`);
+  w.document.close();
 }
 
 /* ---------- 匯入 ---------- */
